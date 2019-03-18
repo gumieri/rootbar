@@ -303,6 +303,7 @@ void bar_init(struct map* config, char* bar_name, char* output_name) {
 				strcpy(hyphen_name, "-");
 				strcat(hyphen_name, arg);
 				map_put(props, arg, config_get(config, plugin_name, hyphen_name, NULL));
+				free(arg);
 				free(hyphen_name);
 			}
 			free(arg_names);
