@@ -41,8 +41,9 @@ static void* poll(void* data) {
 			uint32_t type = arr[1];
 			if(length > 0) {
 				free(buffer);
-				buffer = malloc(length);
+				buffer = malloc(length + 1);
 				recv(this->event_sock, buffer, length, 0);
+				((char*) buffer)[length] = 0;
 			}
 			if(type >> 31 == 1) {
 				void (*handle)(const char* str) = map_get(this->events, event_names[type & 0xF]);
@@ -118,8 +119,9 @@ void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (
 		fprintf(stderr, "Payload length of 0");
 		return;
 	}
-	buffer = malloc(length);
+	buffer = malloc(length + 1);
 	recv(this->event_sock, buffer, length, 0);
+	((char*) buffer)[length] = 0;
 	struct json_object* json = json_tokener_parse(buffer);
 	struct json_object* success = json_object_object_get(json, "success");
 	if(!json_object_get_boolean(success)) {
@@ -162,8 +164,9 @@ char* sway_ipc_send_message(struct sway_ipc* this, enum sway_ipc_message message
 	uint32_t type = int_buff[1];
 	if(length > 0) {
 		free(buffer);
-		buffer = malloc(length);
+		buffer = malloc(length + 1);
 		recv(this->msg_sock, buffer, length, 0);
+		((char*) buffer)[length] = 0;
 	}
 	if(type != expected_reply) {
 		free(buffer);
