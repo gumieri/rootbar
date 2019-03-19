@@ -1,7 +1,7 @@
 ^\.cproject$
 ^\.project$
 ^\.settings$
-^Debug/btbar$
-^Release/btbar$
+^Debug/rootbar$
+^Release/rootbar$
 .+\.o$
 .+\.d$

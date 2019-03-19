@@ -8,6 +8,7 @@ C_SRCS += \
 ../src/config.c \
 ../src/main.c \
 ../src/map.c \
+../src/sway_ipc.c \
 ../src/utils.c 
 
 OBJS += \
@@ -15,6 +16,7 @@ OBJS += \
 ./src/config.o \
 ./src/main.o \
 ./src/map.o \
+./src/sway_ipc.o \
 ./src/utils.o 
 
 C_DEPS += \
@@ -22,6 +24,7 @@ C_DEPS += \
 ./src/config.d \
 ./src/main.d \
 ./src/map.d \
+./src/sway_ipc.d \
 ./src/utils.d 
 
 
