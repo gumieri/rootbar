@@ -80,7 +80,7 @@ static void start_events(struct sway_ipc* this) {
 	pthread_mutex_unlock(&this->mutex);
 }
 
-void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (*handler)(char* str)) {
+void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (*handler)(const char* str)) {
 	stop_events(this);
 	size_t magic_s = strlen(MAGIC);
 	struct json_object* arr = json_object_new_array();
