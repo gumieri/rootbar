@@ -5,15 +5,18 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../plugins/bind_mode.c \
-../plugins/text.c 
+../plugins/text.c \
+../plugins/window.c 
 
 OBJS += \
 ./plugins/bind_mode.o \
-./plugins/text.o 
+./plugins/text.o \
+./plugins/window.o 
 
 C_DEPS += \
 ./plugins/bind_mode.d \
-./plugins/text.d 
+./plugins/text.d \
+./plugins/window.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
