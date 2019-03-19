@@ -117,6 +117,15 @@ static void* run(void* data) {
 	return NULL;
 }
 
+static void* get_plugin_func(const char* prefix, const char* suffix) {
+	void* fun_name = malloc(strlen(prefix) + strlen(suffix) + 1);
+	strcpy(fun_name, prefix);
+	strcat(fun_name, suffix);
+	void* fun = dlsym(RTLD_DEFAULT, fun_name);
+	free(fun_name);
+	return fun;
+}
+
 void bar_init(struct map* config, const char* bar_name, const char* output_name) {
 	if(output_name == NULL) {
 		fprintf(stderr, "No output specified for %s\n", bar_name);
@@ -253,37 +262,16 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 			bool (*is_image)();
 			struct plugin_node* node = malloc(sizeof(struct plugin_node));
 			if(dso == NULL) {
-				size_t dso_len = strlen(dso_name);
 				char* init_str = "_init";
 				char* get_arg_names_str = "_get_arg_names";
 				char* get_arg_count_str = "_get_arg_count";
 				char* is_image_str = "_is_image";
 				char* get_info_str = "_get_info";
-				char* fun_name = malloc(dso_len + strlen(init_str) + 1);
-				strcpy(fun_name, dso_name);
-				strcat(fun_name, init_str);
-				init = dlsym(RTLD_DEFAULT, fun_name);
-				free(fun_name);
-				fun_name = malloc(dso_len + strlen(get_arg_names_str) + 1);
-				strcpy(fun_name, dso_name);
-				strcat(fun_name, get_arg_names_str);
-				get_arg_names = dlsym(RTLD_DEFAULT, fun_name);
-				free(fun_name);
-				fun_name = malloc(dso_len + strlen(get_arg_count_str) + 1);
-				strcpy(fun_name, dso_name);
-				strcat(fun_name, get_arg_count_str);
-				get_arg_count = dlsym(RTLD_DEFAULT, fun_name);
-				free(fun_name);
-				fun_name = malloc(dso_len + strlen(is_image_str) + 1);
-				strcpy(fun_name, dso_name);
-				strcat(fun_name, is_image_str);
-				is_image = dlsym(RTLD_DEFAULT, fun_name);
-				free(fun_name);
-				fun_name = malloc(dso_len + strlen(get_info_str) + 1);
-				strcpy(fun_name, dso_name);
-				strcat(fun_name, get_info_str);
-				node->get_info = dlsym(RTLD_DEFAULT, fun_name);
-				free(fun_name);
+				init = get_plugin_func(dso_name, init_str);
+				get_arg_names = get_plugin_func(dso_name, get_arg_names_str);
+				get_arg_count = get_plugin_func(dso_name, get_arg_count_str);
+				is_image = get_plugin_func(dso_name, is_image_str);
+				node->get_info = get_plugin_func(dso_name, get_info_str);
 			} else {
 				void* plugin = dlopen(dso_name, RTLD_LAZY);
 				init = dlsym(plugin, "init");
