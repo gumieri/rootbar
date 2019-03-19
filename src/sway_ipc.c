@@ -119,7 +119,7 @@ void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (
 		return;
 	}
 	buffer = malloc(length);
-	recv(this->event_sock, buffer, buff_s, 0);
+	recv(this->event_sock, buffer, length, 0);
 	struct json_object* json = json_tokener_parse(buffer);
 	struct json_object* success = json_object_object_get(json, "success");
 	if(!json_object_get_boolean(success)) {
