@@ -18,7 +18,7 @@
 #include <sway_ipc.h>
 
 static const char* MAGIC = "i3-ipc";
-static char* event_names[] = {"barconfig_update", "binding", "mode", "output", "shutdown", "tick", "window", "workspace"};
+static char* event_names[] = {"workspace", "output", "mode", "window", "barconfig_update", "binding", "shutdown", "tick"};
 
 struct sway_ipc {
 	int32_t event_sock, msg_sock;
