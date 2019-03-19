@@ -190,6 +190,7 @@ struct sway_ipc* sway_ipc_init() {
 	this->msg_sock = socket(AF_UNIX, SOCK_STREAM, 0);
 	this->events = map_init_void();
 	pthread_cond_init(&this->_stop_events, NULL);
+	pthread_mutex_init(&this->mutex, NULL);
 	struct sockaddr_un addr = {
 		.sun_family = AF_UNIX
 	};
