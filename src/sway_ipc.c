@@ -28,6 +28,11 @@ struct sway_ipc {
 	pthread_mutex_t mutex;
 };
 
+struct handler {
+	void (*handle)(const char* str, void* data);
+	void* data;
+};
+
 static void* poll(void* data) {
 	struct sway_ipc* this = data;
 	size_t magic_s = strlen(MAGIC);
@@ -46,8 +51,8 @@ static void* poll(void* data) {
 				((char*) buffer)[length] = 0;
 			}
 			if(type >> 31 == 1) {
-				void (*handle)(const char* str) = map_get(this->events, event_names[type & 0xF]);
-				handle(buffer);
+				struct handler* handler = map_get(this->events, event_names[type & 0xF]);
+				handler->handle(buffer, handler->data);
 			}
 			free(buffer);
 			while(this->stop_events) {
@@ -81,7 +86,7 @@ static void start_events(struct sway_ipc* this) {
 	pthread_mutex_unlock(&this->mutex);
 }
 
-void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (*handler)(const char* str)) {
+void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (*handler)(const char* str, void* data), void* data) {
 	stop_events(this);
 	size_t magic_s = strlen(MAGIC);
 	struct json_object* arr = json_object_new_array();
@@ -132,7 +137,10 @@ void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (
 	}
 	json_object_put(json);
 	free(buffer);
-	map_put_void(this->events, event_names[event], handler);
+	struct handler* handle = malloc(sizeof(struct handler));
+	handle->handle = handler;
+	handle->data = data;
+	map_put_void(this->events, event_names[event], handle);
 	start_events(this);
 }
 
