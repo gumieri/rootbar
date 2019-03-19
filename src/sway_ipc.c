@@ -134,6 +134,45 @@ void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (
 	start_events(this);
 }
 
+char* sway_ipc_send_message(struct sway_ipc* this, enum sway_ipc_message message, const char* payload, enum sway_ipc_reply expected_reply) {
+	if(payload == NULL) {
+		payload = "";
+	}
+	size_t magic_s = strlen(MAGIC);
+	size_t payload_s = strlen(payload);
+	size_t buff_s = 8 + magic_s + payload_s;
+	void* buffer = malloc(buff_s);
+	memcpy(buffer, MAGIC, magic_s);
+	uint32_t* int_buff = (uint32_t*) (buffer + magic_s);
+	int_buff[0] = payload_s;
+	int_buff[1] = message;
+	memcpy(buffer + magic_s + 8, payload, payload_s);
+	write(this->msg_sock, buffer, buff_s);
+	free(buffer);
+	buff_s = 8 + magic_s;
+	buffer = malloc(buff_s);
+	recv(this->msg_sock, buffer, buff_s, 0);
+	if(strncmp(buffer, MAGIC, magic_s) != 0) {
+		fprintf(stderr, "Invalid magic\n");
+		free(buffer);
+		return NULL;
+	}
+	int_buff = (uint32_t*) (buffer + magic_s);
+	uint32_t length = int_buff[0];
+	uint32_t type = int_buff[1];
+	if(length > 0) {
+		free(buffer);
+		buffer = malloc(length);
+		recv(this->msg_sock, buffer, length, 0);
+	}
+	if(type != expected_reply) {
+		free(buffer);
+		fprintf(stderr, "Unexpected reply\n");
+		return NULL;
+	}
+	return buffer;
+}
+
 struct sway_ipc* sway_ipc_init() {
 	struct sway_ipc* this = malloc(sizeof(struct sway_ipc));
 	this->event_sock = socket(AF_UNIX, SOCK_STREAM, 0);
