@@ -4,12 +4,15 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../plugins/bind_mode.c \
 ../plugins/text.c 
 
 OBJS += \
+./plugins/bind_mode.o \
 ./plugins/text.o 
 
 C_DEPS += \
+./plugins/bind_mode.d \
 ./plugins/text.d 
 
 
