@@ -18,6 +18,8 @@
 #include <map.h>
 #include <stdio.h>
 
+static char* args[] = {"text"};
+
 struct text {
 	char* text;
 };
@@ -29,15 +31,11 @@ void* text_init(struct map* props) {
 }
 
 char** text_get_arg_names() {
-	char** ret = calloc(1, sizeof(char*));
-	char* text = "text";
-	ret[0] = malloc(strlen(text) + 1);
-	strcpy(ret[0], text);
-	return ret;
+	return args;
 }
 
 size_t text_get_arg_count() {
-	return 1;
+	return sizeof(args);
 }
 
 void text_get_info(void* data, const char* format, char* out, size_t size) {

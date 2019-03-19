@@ -291,10 +291,8 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 				strcpy(hyphen_name, "-");
 				strcat(hyphen_name, arg);
 				map_put(props, arg, config_get(config, plugin_name, hyphen_name, NULL));
-				free(arg);
 				free(hyphen_name);
 			}
-			free(arg_names);
 			void* plugin = init(props);
 			node->is_image = is_image != NULL && is_image();
 			if(node->is_image) {
