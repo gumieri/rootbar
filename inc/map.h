@@ -18,14 +18,20 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct map* map_init();
 
+struct map* map_init_void();
+
 void map_free();
 
-void map_put(struct map* map, const char* key, const void* value);
+bool map_put(struct map* map, const char* key, char* value);
+
+bool map_put_void(struct map* map, const char* key, void* value);
 
 void* map_get(struct map* map, const char* key);
 

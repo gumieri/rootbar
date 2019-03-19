@@ -21,12 +21,20 @@ struct map {
 	char* key;
 	void* value;
 	size_t size;
+	bool mman;
 	struct map* head, *left, *right;
 };
 
 struct map* map_init() {
 	struct map* map = calloc(1, sizeof(struct map));
 	map->head = map;
+	map->mman = true;
+	return map;
+}
+
+struct map* map_init_void() {
+	struct map* map = map_init();
+	map->mman = false;
 	return map;
 }
 
@@ -40,18 +48,22 @@ void map_free(struct map* map) {
 	if(map->key != NULL) {
 		free(map->key);
 	}
-	if(map->value != NULL) {
+	if(map->value != NULL && map->head->mman) {
 		free(map->value);
 	}
 	free(map);
 }
 
-void map_put(struct map* map, const char* key, const void* value) {
+static void put(struct map* map, const char* key, void* value) {
 	if(map->key == NULL) {
 		map->key = malloc(strlen(key) + 1);
 		strcpy(map->key, key);
-		map->value = malloc(strlen(value) + 1);
-		strcpy(map->value, value);
+		if(map->head->mman) {
+			map->value = malloc(strlen(value) + 1);
+			strcpy(map->value, value);
+		} else {
+			map->value = value;
+		}
 		++map->head->size;
 	} else if(strcmp(key, map->key) < 0) {
 		if(map->left == NULL) {
@@ -66,9 +78,33 @@ void map_put(struct map* map, const char* key, const void* value) {
 		}
 		map_put(map->right, key, value);
 	} else {
-		free(map->value);
-		map->value = malloc(strlen(value) + 1);
-		strcpy(map->value, value);
+		if(map->head->mman) {
+			free(map->value);
+			map->value = malloc(strlen(value) + 1);
+			strcpy(map->value, value);
+		} else {
+			map->value = value;
+		}
+	}
+}
+
+bool map_put(struct map* map, const char* key, char* value) {
+	if(map->head->mman) {
+		put(map, key, value);
+		return true;
+	} else {
+		fprintf(stderr, "This is an unmanaged map please use map_put_void\n");
+		return false;
+	}
+}
+
+bool map_put_void(struct map* map, const char* key, void* value) {
+	if(map->head->mman) {
+		fprintf(stderr, "This is an managed map please use map_put\n");
+		return false;
+	} else {
+		put(map, key, value);
+		return true;
 	}
 }
 

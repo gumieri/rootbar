@@ -130,7 +130,7 @@ void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (
 	}
 	json_object_put(json);
 	free(buffer);
-	map_put(this->events, event_names[event], handler);
+	map_put_void(this->events, event_names[event], handler);
 	start_events(this);
 }
 
@@ -177,6 +177,7 @@ struct sway_ipc* sway_ipc_init() {
 	struct sway_ipc* this = malloc(sizeof(struct sway_ipc));
 	this->event_sock = socket(AF_UNIX, SOCK_STREAM, 0);
 	this->msg_sock = socket(AF_UNIX, SOCK_STREAM, 0);
+	this->events = map_init_void();
 	struct sockaddr_un addr = {
 		.sun_family = AF_UNIX,
 	};
