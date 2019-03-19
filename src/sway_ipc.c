@@ -183,7 +183,7 @@ struct sway_ipc* sway_ipc_init() {
 	this->events = map_init_void();
 	pthread_cond_init(&this->_stop_events, NULL);
 	struct sockaddr_un addr = {
-		.sun_family = AF_UNIX,
+		.sun_family = AF_UNIX
 	};
 	strncpy(addr.sun_path, getenv("SWAYSOCK"), sizeof(addr.sun_path) - 1);
 	connect(this->event_sock, (struct sockaddr*) &addr, sizeof(addr));
