@@ -35,7 +35,7 @@ const char** text_get_arg_names() {
 }
 
 size_t text_get_arg_count() {
-	return sizeof(args);
+	return 1;
 }
 
 void text_get_info(void* data, const char* format, char* out, size_t size) {
