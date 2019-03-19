@@ -40,7 +40,7 @@ size_t text_get_arg_count() {
 	return 1;
 }
 
-void text_get_info(void* data, char* format, char* out, size_t size) {
+void text_get_info(void* data, const char* format, char* out, size_t size) {
 	struct text* this = data;
 	snprintf(out, size, format, this->text);
 }

@@ -29,7 +29,7 @@ struct plugin_node {
 	GtkWidget* widget;
 	char* format;
 	uint64_t length;
-	void (*get_info)(void* data, char* format, char* out, size_t size);
+	void (*get_info)(void* data, const char* format, char* out, size_t size);
 	bool is_image;
 	struct wl_list link;
 };
@@ -117,7 +117,7 @@ static void* run(void* data) {
 	return NULL;
 }
 
-void bar_init(struct map* config, char* bar_name, char* output_name) {
+void bar_init(struct map* config, const char* bar_name, const char* output_name) {
 	if(output_name == NULL) {
 		fprintf(stderr, "No output specified for %s\n", bar_name);
 		return;
