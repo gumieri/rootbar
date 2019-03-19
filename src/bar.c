@@ -257,7 +257,7 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 		} else {
 			char* dso = strstr(dso_name, ".so");
 			void* (*init)(struct map* props);
-			char** (*get_arg_names)();
+			const char** (*get_arg_names)();
 			size_t (*get_arg_count)();
 			bool (*is_image)();
 			struct plugin_node* node = malloc(sizeof(struct plugin_node));
@@ -281,12 +281,12 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 				node->get_info = dlsym(plugin, "get_info");
 			}
 
-			char** arg_names = get_arg_names();
+			const char** arg_names = get_arg_names();
 			size_t arg_count = get_arg_count();
 
 			struct map* props = map_init();
 			for(size_t count = 0; count < arg_count; ++count) {
-				char* arg = arg_names[count];
+				const char* arg = arg_names[count];
 				char* hyphen_name = malloc(strlen(arg) + 2);
 				strcpy(hyphen_name, "-");
 				strcat(hyphen_name, arg);
