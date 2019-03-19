@@ -45,7 +45,7 @@ static void* poll(void* data) {
 				recv(this->event_sock, buffer, length, 0);
 			}
 			if(type >> 31 == 1) {
-				void (*handle)(char* str) = map_get(this->events, event_names[type & 0xF]);
+				void (*handle)(const char* str) = map_get(this->events, event_names[type & 0xF]);
 				handle(buffer);
 			}
 			free(buffer);
