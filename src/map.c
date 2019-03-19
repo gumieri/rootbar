@@ -70,13 +70,13 @@ static void put(struct map* map, const char* key, void* value) {
 			map->left = map_init();
 			map->left->head = map->head;
 		}
-		map_put(map->left, key, value);
+		put(map->left, key, value);
 	} else if(strcmp(key, map->key) > 0) {
 		if(map->right == NULL) {
 			map->right = map_init();
 			map->right->head = map->head;
 		}
-		map_put(map->right, key, value);
+		put(map->right, key, value);
 	} else {
 		if(map->head->mman) {
 			free(map->value);
