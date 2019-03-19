@@ -74,4 +74,6 @@ struct sway_ipc* sway_ipc_init();
 
 void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (*handler)(char* str));
 
+char* sway_ipc_send_message(struct sway_ipc* this, enum sway_ipc_message message, const char* payload, enum sway_ipc_reply expected_reply);
+
 #endif
