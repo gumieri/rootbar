@@ -46,7 +46,7 @@ void map_free(struct map* map) {
 	free(map);
 }
 
-void map_put(struct map* map, char* key, void* value) {
+void map_put(struct map* map, const char* key, const void* value) {
 	if(map->key == NULL) {
 		map->key = malloc(strlen(key) + 1);
 		strcpy(map->key, key);
@@ -72,7 +72,7 @@ void map_put(struct map* map, char* key, void* value) {
 	}
 }
 
-void* map_get(struct map* map, char* key) {
+void* map_get(struct map* map, const char* key) {
 	if(map->key == NULL) {
 		return NULL;
 	} else if(strcmp(key, map->key) < 0) {

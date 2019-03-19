@@ -25,9 +25,9 @@ struct map* map_init();
 
 void map_free();
 
-void map_put(struct map* map, char* key, void* value);
+void map_put(struct map* map, const char* key, const void* value);
 
-void* map_get(struct map* map, char* key);
+void* map_get(struct map* map, const char* key);
 
 size_t map_size(struct map* map);
 
