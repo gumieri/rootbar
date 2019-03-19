@@ -58,7 +58,7 @@ static void put(struct map* map, const char* key, void* value) {
 	if(map->key == NULL) {
 		map->key = malloc(strlen(key) + 1);
 		strcpy(map->key, key);
-		if(map->head->mman) {
+		if(value != NULL && map->head->mman) {
 			map->value = malloc(strlen(value) + 1);
 			strcpy(map->value, value);
 		} else {
@@ -78,8 +78,10 @@ static void put(struct map* map, const char* key, void* value) {
 		}
 		put(map->right, key, value);
 	} else {
-		if(map->head->mman) {
+		if(map->value != NULL && map->head->mman) {
 			free(map->value);
+		}
+		if(value != NULL && map->head->mman) {
 			map->value = malloc(strlen(value) + 1);
 			strcpy(map->value, value);
 		} else {
