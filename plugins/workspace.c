@@ -52,6 +52,7 @@ static gboolean idle_add(gpointer data) {
 	free(tmp->name);
 	gtk_container_add(GTK_CONTAINER(tmp->this->box), GTK_WIDGET(tmp->label));
 	gtk_widget_show_all(GTK_WIDGET(tmp->this->box));
+	free(tmp);
 	return FALSE;
 }
 
