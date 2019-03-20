@@ -29,3 +29,10 @@ void utils_sleep_millis(time_t millis) {
 	time.tv_nsec = (millis % 1000) * pow(1000, 2);
 	nanosleep(&time, NULL);
 }
+
+char* utils_concat(const char* str1, const char* str2) {
+	char* buffer = malloc(strlen(str1) + strlen(str2) + 1);
+	strcpy(buffer, str1);
+	strcat(buffer, str2);
+	return buffer;
+}

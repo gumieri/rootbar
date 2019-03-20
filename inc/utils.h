@@ -20,10 +20,14 @@
 
 #include <math.h>
 #include <time.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 
 time_t utils_get_time_millis();
 
 void utils_sleep_millis(time_t millis);
+
+char* utils_concat(const char* str1, const char* str2);
 
 #endif
