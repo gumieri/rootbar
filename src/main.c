@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
 	char* color_str = map_get(args, "color");
 
 	const char* home_dir = getenv("HOME");
-	const char* config_dir = "/.config/btbar";
+	const char* config_dir = "/.config/rootbar";
 	const char* color_f = "/.cache/wal/colors";
 
 	CONFIG_LOCATION = malloc(strlen(home_dir) + strlen(config_dir) + 1);
@@ -188,13 +188,13 @@ int main(int argc, char** argv) {
 		}
 		struct node* node;
 		wl_list_for_each(node, &lines, link) {
-			//Do --jaybar-color replace
+			//Do --rootbar-color replace
 			const char* color = node->line;
-			const char* jaybar_color = "--jaybar-color";
+			const char* rootbar_color = "--rootbar-color";
 			char count_str[3];
 			snprintf(count_str, 3, "%lu", count--);
-			char* needle = malloc(strlen(jaybar_color) + strlen(count_str) + 1);
-			strcpy(needle, jaybar_color);
+			char* needle = malloc(strlen(rootbar_color) + strlen(count_str) + 1);
+			strcpy(needle, rootbar_color);
 			strcat(needle, count_str);
 			size_t color_len = strlen(color);
 			size_t needle_len = strlen(needle);
@@ -212,14 +212,14 @@ int main(int argc, char** argv) {
 			free(needle);
 
 
-			//Do --jaybar-rgb-color replace
+			//Do --rootbar-rgb-color replace
 			if(color_len < 7) {
 				fprintf(stderr, "What color format is this, try #FFFFFF\n");
 				continue;
 			}
-			const char* jaybar_rgb_color = "--jaybar-rgb-color";
-			needle = malloc(strlen(jaybar_rgb_color) + strlen(count_str) + 1);
-			strcpy(needle, jaybar_rgb_color);
+			const char* rootbar_rgb_color = "--rootbar-rgb-color";
+			needle = malloc(strlen(rootbar_rgb_color) + strlen(count_str) + 1);
+			strcpy(needle, rootbar_rgb_color);
 			strcat(needle, count_str);
 			needle_len = strlen(needle);
 			replace = strstr(data, needle);
