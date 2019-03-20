@@ -319,7 +319,7 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 		if(strcmp(position, "left") == 0) {
 			gtk_box_pack_start(GTK_BOX(left), widget, false, false, padding);
 		} else if(strcmp(position, "center") == 0) {
-			gtk_box_pack_start(GTK_BOX(center), widget, false, false, padding);
+			gtk_box_pack_start(GTK_BOX(center_box), widget, false, false, padding);
 		} else if(strcmp(position, "right") == 0) {
 			gtk_box_pack_end(GTK_BOX(right), widget, false, false, padding);
 		}
