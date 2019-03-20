@@ -90,6 +90,8 @@ static void ask_workspaces(void* data, const char* payload) {
 				tmp->status = this->focused;
 			} else if(visible) {
 				tmp->status = this->visible;
+			} else {
+				tmp->status = this->inactive;
 			}
 			g_idle_add(idle_add, tmp);
 		}
