@@ -26,7 +26,7 @@
 static const char* arg_names[] = {"interval"};
 
 struct cpu {
-	uint64_t percentage;
+	uint32_t percentage;
 	time_t interval;
 };
 
@@ -70,7 +70,7 @@ static void* poll(void* data) {
 		uint64_t idle = idle2 - idle1;
 		float time_idle = (float) idle / total;
 		float time_working = 1.f - time_idle;
-		this->percentage = (uint64_t) (time_working * 100.f);
+		this->percentage = time_working * 100.f;
 	}
 	return NULL;
 }
