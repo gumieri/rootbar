@@ -55,10 +55,12 @@ static gboolean idle_add(gpointer data) {
 	return FALSE;
 }
 
-static void ask_workspaces(void* data, const char* payload) {
+static void ask_workspaces(void* data, const char* ignored) {
+	(void) ignored;
 	struct workspace* this = data;
-	payload = sway_ipc_send_message(this->ipc, SWAY_IPC_MESSAGE_GET_WORKSPACES, NULL, SWAY_IPC_REPLY_WORKSPACES);
+	char* payload = sway_ipc_send_message(this->ipc, SWAY_IPC_MESSAGE_GET_WORKSPACES, NULL, SWAY_IPC_REPLY_WORKSPACES);
 	struct json_object* arr = json_tokener_parse(payload);
+	free(payload);
 	size_t arr_s = json_object_array_length(arr);
 	g_idle_add(idle_remove, this);
 	for(size_t count = 0; count < arr_s; ++count) {
