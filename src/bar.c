@@ -254,6 +254,8 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 		uint64_t padding = strtol(config_get(config, plugin_name, "-padding", padding_default), NULL, 10);
 		if(workspace) {
 			widget = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+			char* show_all = config_get(config, plugin_name, "-show_all", "false");
+			workspace_init(output_name, GTK_BOX(widget), strcmp(show_all, "true") == 0, plugin_name, padding, bar_name);
 		} else {
 			char* dso = strstr(dso_name, ".so");
 			void* (*init)(struct map* props);

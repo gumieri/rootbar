@@ -15,26 +15,17 @@
     along with Root Bar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BAR_H
-#define BAR_H
+#ifndef WORKSPACE_H
+#define WORKSPACE_H
 
-#define _GNU_SOURCE
 #include <map.h>
-#include <utils.h>
-#include <dlfcn.h>
-#include <stdio.h>
-#include <config.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <pthread.h>
 #include <gtk/gtk.h>
-#include <workspace.h>
-#include <gdk/gdkwayland.h>
-#include <wayland-client.h>
-#include <xdg-output-unstable-v1-client-protocol.h>
-#include <wlr-layer-shell-unstable-v1-client-protocol.h>
+#include <sway_ipc.h>
+#include <json-c/json_object.h>
+#include <json-c/json_tokener.h>
 
-void bar_init(struct map* config, const char* bar_name, const char* output_name);
-
+void workspace_init(const char* output_name, GtkBox* box, bool show_all, const char* plugin_name, uint32_t padding, const char* bar_name);
 
 #endif
