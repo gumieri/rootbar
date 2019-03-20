@@ -281,8 +281,12 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 				node->get_info = dlsym(plugin, "get_info");
 			}
 
-			const char** arg_names = get_arg_names();
-			size_t arg_count = get_arg_count();
+			const char** arg_names = NULL;
+			size_t arg_count = 0;
+			if(get_arg_names != NULL && get_arg_count != NULL) {
+				arg_names = get_arg_names();
+				arg_count = get_arg_count();
+			}
 
 			struct map* props = map_init();
 			for(size_t count = 0; count < arg_count; ++count) {
@@ -293,7 +297,10 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 				map_put(props, arg, config_get(config, plugin_name, hyphen_name, NULL));
 				free(hyphen_name);
 			}
-			void* plugin = init(props);
+			void* plugin = NULL;
+			if(init != NULL) {
+				plugin = init(props);
+			}
 			node->is_image = is_image != NULL && is_image();
 			if(node->is_image) {
 				widget = gtk_image_new();
