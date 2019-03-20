@@ -144,8 +144,9 @@ int main(int argc, char** argv) {
 			color_path = malloc(strlen(COLORS_LOCATION) + 1);
 			strcpy(color_path, COLORS_LOCATION);
 		} else {
-			color_path = malloc(strlen(CONFIG_LOCATION) + strlen(color_str) + 1);
+			color_path = malloc(strlen(CONFIG_LOCATION) + strlen(color_str) + 2);
 			strcpy(color_path, CONFIG_LOCATION);
+			strcat(color_path, "/");
 			strcat(color_path, color_str);
 		}
 	} else {
