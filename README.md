@@ -6,6 +6,7 @@ Root Bar is a bar for wlroots based wayland compositors such as sway and was des
 	libwayland-dev
 	libgtk-3-dev
 	libjson-c-dev
+	pkg-config
 ## Building
 	hg clone https://bitbucket.org/Scoopta/root-bar rootbar
 	cd rootbar/Release
