@@ -25,6 +25,7 @@ void clock_get_info(void* data, const char* format, char* out, size_t size) {
 	struct tm* tm = localtime(&t);
 	char* tmp = malloc(size);
 	strftime(tmp, size, format, tm);
+	tmp[size - 1] = 0;
 	snprintf(out, size, tmp, tm->tm_year + 10000 + 1900);
 	free(tmp);
 }
