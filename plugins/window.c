@@ -48,14 +48,6 @@ void* window_init(struct map* props) {
 	return this;
 }
 
-const char** window_get_arg_names() {
-	return NULL;
-}
-
-size_t window_get_arg_count() {
-	return 0;
-}
-
 void window_get_info(void* data, const char* format, char* out, size_t size) {
 	struct window* this = data;
 	snprintf(out, size, format, this->title);
