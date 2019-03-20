@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <config.h>
+#include <signal.h>
 #include <gtk/gtk.h>
 #include <wayland-client.h>
 
@@ -75,6 +76,11 @@ static struct map* parse_args(int argc, char** argv) {
 	}
 	map_free(abrev);
 	return ret;
+}
+
+void sig(int32_t signum) {
+	(void) signum;
+	exit(0);
 }
 
 int main(int argc, char** argv) {
@@ -269,6 +275,9 @@ int main(int argc, char** argv) {
 	} else {
 		bar_init(config, bar_name, config_get(config, bar_name, "-output", NULL));
 	}
+	struct sigaction sigact;
+	sigact.sa_handler = sig;
+	sigaction(SIGUSR1, &sigact, NULL);
 	gtk_main();
 	return 0;
 }
