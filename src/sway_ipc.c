@@ -29,7 +29,7 @@ struct sway_ipc {
 };
 
 struct handler {
-	void (*handle)(const char* str, void* data);
+	void (*handle)(void* data, const char* str);
 	void* data;
 };
 
@@ -52,7 +52,7 @@ static void* poll(void* data) {
 			}
 			if(type >> 31 == 1) {
 				struct handler* handler = map_get(this->events, event_names[type & 0xF]);
-				handler->handle(buffer, handler->data);
+				handler->handle(handler->data, buffer);
 			}
 			free(buffer);
 			while(this->stop_events) {
@@ -86,7 +86,7 @@ static void start_events(struct sway_ipc* this) {
 	pthread_mutex_unlock(&this->mutex);
 }
 
-void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (*handler)(const char* str, void* data), void* data) {
+void sway_ipc_subscribe(struct sway_ipc* this, enum sway_ipc_event event, void (*handler)(void* data, const char* str), void* data) {
 	stop_events(this);
 	size_t magic_s = strlen(MAGIC);
 	struct json_object* arr = json_object_new_array();

@@ -28,7 +28,7 @@ struct bind_mode {
 	bool hide_default;
 };
 
-static void mode(const char* json_data, void* data) {
+static void mode(void* data, const char* json_data) {
 	struct bind_mode* this = data;
 	struct json_object* json = json_tokener_parse(json_data);
 	struct json_object* change = json_object_object_get(json, "change");

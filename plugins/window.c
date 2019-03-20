@@ -25,7 +25,7 @@ struct window {
 	char* title;
 };
 
-static void window(const char* json_data, void* data) {
+static void window(void* data, const char* json_data) {
 	struct window* this = data;
 	struct json_object* json = json_tokener_parse(json_data);
 	struct json_object* container = json_object_object_get(json, "container");
