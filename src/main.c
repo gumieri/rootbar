@@ -126,8 +126,9 @@ int main(int argc, char** argv) {
 			strcpy(stylesheet, CONFIG_LOCATION);
 			strcat(stylesheet, style_f);
 		} else {
-			stylesheet = malloc(strlen(CONFIG_LOCATION) + strlen(style_str) + 1);
+			stylesheet = malloc(strlen(CONFIG_LOCATION) + strlen(style_str) + 2);
 			strcpy(stylesheet, CONFIG_LOCATION);
+			strcat(stylesheet, "/");
 			strcat(stylesheet, style_str);
 		}
 	} else {
