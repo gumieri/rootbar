@@ -235,7 +235,7 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 	while(comma != NULL) {
 		++comma_count;
 		*comma = 0;
-		comma = strchr(plugin_names, ',');
+		comma = strchr(comma + 1, ',');
 	}
 	char* plugin_name = plugin_names;
 	for(size_t count = 0; count < comma_count; ++count) {
