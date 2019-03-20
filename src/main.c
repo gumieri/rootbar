@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
 			exit(1);
 		}
 		struct node* node;
-		wl_list_for_each_reverse(node, &lines, link) {
+		wl_list_for_each(node, &lines, link) {
 			//Do --jaybar-color replace
 			const char* color = node->line;
 			const char* jaybar_color = "--jaybar-color";
