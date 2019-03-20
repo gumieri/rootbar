@@ -303,6 +303,7 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 			if(init != NULL) {
 				plugin = init(props);
 			}
+			map_free(props);
 			node->is_image = is_image != NULL && is_image();
 			if(node->is_image) {
 				widget = gtk_image_new();
