@@ -274,7 +274,7 @@ int main(int argc, char** argv) {
 			bar += strlen(bar) + 1;
 		}
 	} else {
-		bar_init(config, bar_name, config_get(config, bar_name, "-output", NULL));
+		bar_init(config, bar_name, config_get(config, bar_name, "-output", NULL), CONFIG_LOCATION);
 	}
 	struct sigaction sigact;
 	sigact.sa_handler = sig;

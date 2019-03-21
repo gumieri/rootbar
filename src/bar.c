@@ -126,7 +126,7 @@ static void* get_plugin_func(const char* prefix, const char* suffix) {
 	return fun;
 }
 
-void bar_init(struct map* config, const char* bar_name, const char* output_name) {
+void bar_init(struct map* config, const char* bar_name, const char* output_name, const char* config_location) {
 	if(output_name == NULL) {
 		fprintf(stderr, "No output specified for %s\n", bar_name);
 		return;
@@ -275,7 +275,11 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name)
 				is_image = get_plugin_func(dso_name, is_image_str);
 				node->get_info = get_plugin_func(dso_name, get_info_str);
 			} else {
-				void* plugin = dlopen(dso_name, RTLD_LAZY);
+				char* plugins_dir = utils_concat(config_location, "/plugins/");
+				char* full_name = utils_concat(plugins_dir, dso_name);
+				void* plugin = dlopen(full_name, RTLD_LAZY);
+				free(full_name);
+				free(plugins_dir);
 				init = dlsym(plugin, "init");
 				get_arg_names = dlsym(plugin, "get_arg_names");
 				get_arg_count = dlsym(plugin, "get_arg_count");
