@@ -179,10 +179,11 @@ int main(int argc, char** argv) {
 			file = fopen(color_path, "r");
 			char* line = NULL;
 			size_t line_size = 0;
-			while(getline(&line, &line_size, file) != -1) {
+			ssize_t line_l = 0;
+			while((line_l = getline(&line, &line_size, file)) != -1) {
 				struct node* entry = malloc(sizeof(struct node));
-				line[strlen(line) - 1] = 0;
-				entry->line = malloc(strlen(line) + 1);
+				line[line_l - 1] = 0;
+				entry->line = malloc(line_l + 1);
 				strcpy(entry->line, line);
 				wl_list_insert(&lines, &entry->link);
 			}
