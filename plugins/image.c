@@ -17,6 +17,7 @@
 
 #include <map.h>
 #include <stdio.h>
+#include <unistd.h>
 
 static const char* arg_names[] = {"path"};
 
@@ -44,5 +45,13 @@ bool image_is_image() {
 
 void image_get_info(void* data, const char* format, char* out, size_t size) {
 	struct image* this = data;
+	if(this->path == NULL) {
+		fprintf(stderr, "That's not a valid image\n");
+		return;
+	}
+	if(access(this->path, R_OK) != 0) {
+		fprintf(stderr, "%s can't be read\n", this->path);
+		return;
+	}
 	snprintf(out, size, format, this->path);
 }
