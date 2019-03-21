@@ -18,7 +18,7 @@
 #include <map.h>
 #include <stdio.h>
 
-static const char* args[] = {"text"};
+static const char* arg_names[] = {"text"};
 
 struct text {
 	char* text;
@@ -31,11 +31,11 @@ void* text_init(struct map* props) {
 }
 
 const char** text_get_arg_names() {
-	return args;
+	return arg_names;
 }
 
 size_t text_get_arg_count() {
-	return 1;
+	return sizeof(arg_names) / sizeof(char*);
 }
 
 void text_get_info(void* data, const char* format, char* out, size_t size) {

@@ -21,7 +21,7 @@
 #include <json-c/json_object.h>
 #include <json-c/json_tokener.h>
 
-static const char* args[] = {"hide_default"};
+static const char* arg_names[] = {"hide_default"};
 
 struct bind_mode {
 	char* mode;
@@ -54,11 +54,11 @@ void* bind_mode_init(struct map* props) {
 }
 
 const char** bind_mode_get_arg_names() {
-	return args;
+	return arg_names;
 }
 
 size_t bind_mode_get_arg_count() {
-	return 1;
+	return sizeof(arg_names) / sizeof(char*);
 }
 
 void bind_mode_get_info(void* data, const char* format, char* out, size_t size) {
