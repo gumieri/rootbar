@@ -34,7 +34,7 @@
 #include <xdg-output-unstable-v1-client-protocol.h>
 #include <wlr-layer-shell-unstable-v1-client-protocol.h>
 
-void bar_init(struct map* config, const char* bar_name, const char* output_name);
+void bar_init(struct map* config, const char* bar_name, const char* output_name, const char* config_location);
 
 
 #endif

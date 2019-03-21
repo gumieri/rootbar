@@ -270,7 +270,7 @@ int main(int argc, char** argv) {
 		}
 		char* bar = bars;
 		for(size_t count = 0; count < comma_count; ++count) {
-			bar_init(config, bar, config_get(config, bar, "-output", NULL));
+			bar_init(config, bar, config_get(config, bar, "-output", NULL), CONFIG_LOCATION);
 			bar += strlen(bar) + 1;
 		}
 	} else {
