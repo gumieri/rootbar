@@ -94,7 +94,7 @@ static gboolean idle_add(gpointer data) {
 	wl_list_for_each(node, &this->plugins, link) {
 		if(node->is_image) {
 			char path[255];
-			node->get_info(node->plugin, NULL, path, 255);
+			node->get_info(node->plugin, node->format, path, 255);
 			if(access(path, R_OK) != 0) {
 				continue;
 			}

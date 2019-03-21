@@ -8,6 +8,7 @@ C_SRCS += \
 ../plugins/clock.c \
 ../plugins/cpu.c \
 ../plugins/external.c \
+../plugins/image.c \
 ../plugins/text.c \
 ../plugins/window.c \
 ../plugins/workspace.c 
@@ -17,6 +18,7 @@ OBJS += \
 ./plugins/clock.o \
 ./plugins/cpu.o \
 ./plugins/external.o \
+./plugins/image.o \
 ./plugins/text.o \
 ./plugins/window.o \
 ./plugins/workspace.o 
@@ -26,6 +28,7 @@ C_DEPS += \
 ./plugins/clock.d \
 ./plugins/cpu.d \
 ./plugins/external.d \
+./plugins/image.d \
 ./plugins/text.d \
 ./plugins/window.d \
 ./plugins/workspace.d 
