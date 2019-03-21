@@ -43,6 +43,7 @@ void memory_get_info(void* data, const char* format, char* out, size_t size) {
 			mem_avail = strtol(info, NULL, 10);
 		}
 	}
+	fclose(meminfo);
 	free(line);
 	uint64_t used = mem_total - mem_avail;
 	float mb = used / 1024.f;
