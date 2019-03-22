@@ -1,5 +1,5 @@
 #IN DEV
-This project is currently under very active development and is not usable in its current state
+This project is feature parity with Jaybar however it can still be very sensitive to things like configuration mistakes which can cause segfaults
 # Root Bar
 Root Bar is a bar for wlroots based wayland compositors such as sway and was designed to address the lack of good bars for wayland.
 ## Dependencies
