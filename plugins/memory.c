@@ -19,8 +19,29 @@
 #include <stdio.h>
 #include <stdint.h>
 
+static const char* arg_names[] = {"percent"};
+
+struct memory {
+	bool percent;
+};
+
+void* memory_init(struct map* props) {
+	struct memory* this = malloc(sizeof(struct memory));
+	const char* percent = map_get(props, "percent");
+	this->percent = percent != NULL && strcmp(percent, "true") == 0;
+	return this;
+}
+
+const char** memory_get_arg_names() {
+	return arg_names;
+}
+
+size_t memory_get_arg_count() {
+	return sizeof(arg_names) / sizeof(char*);
+}
+
 void memory_get_info(void* data, const char* format, char* out, size_t size) {
-	(void) data;
+	struct memory* this = data;
 	float gb, percentage;
 	FILE* meminfo = fopen("/proc/meminfo", "r");
 	char* line = NULL;
@@ -46,8 +67,12 @@ void memory_get_info(void* data, const char* format, char* out, size_t size) {
 	fclose(meminfo);
 	free(line);
 	uint64_t used = mem_total - mem_avail;
-	float mb = used / 1024.f;
-	gb = mb / 1024.f;
-	percentage = ((float) used / mem_total) * 100.f;
-	snprintf(out, size, format, gb, "GB", percentage, "%");
+	if(this->percent) {
+		percentage = ((float) used / mem_total) * 100.f;
+		snprintf(out, size, format, percentage, "%");
+	} else {
+		float mb = used / 1024.f;
+		gb = mb / 1024.f;
+		snprintf(out, size, format, gb, "GB");
+	}
 }
