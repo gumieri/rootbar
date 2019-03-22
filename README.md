@@ -16,4 +16,4 @@ Root Bar is a bar for wlroots based wayland compositors such as sway and was des
 ## Uninstalling
 	sudo rm /usr/bin/rootbar
 ## Bug Reports
-	Please file bug reports at https://todo.sr.ht/~scoopta/rootbar
+Please file bug reports at https://todo.sr.ht/~scoopta/rootbar
