@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <config.h>
 #include <signal.h>
+#include <getopt.h>
 #include <gtk/gtk.h>
 #include <wayland-client.h>
 
@@ -37,45 +38,14 @@ static void print_usage(char** argv) {
 	} else {
 		offset = (slash - argv[0]) + 1;
 	}
-	printf("%s [options] <bar name|all>\n", argv[0] + offset);
+	printf("%s [options]\n", argv[0] + offset);
 	printf("Options:\n");
 	printf("--help\t-h\tDisplays this help message\n");
+	printf("--bar\t-b\tSpecifies the bar to run, runs all if not specified\n");
 	printf("--conf\t-c\tSelects a config file to use\n");
 	printf("--style\t-s\tSelects a stylesheet to use\n");
 	printf("--color\t-C\tSelects a colors file to use\n");
 	exit(0);
-}
-
-static struct map* parse_args(int argc, char** argv) {
-	struct map* ret = map_init();
-	struct map* abrev = map_init();
-	map_put(abrev, "c", "conf");
-	map_put(abrev, "s", "style");
-	map_put(abrev, "C", "color");
-	if(argc > 1) {
-		for(uint8_t count = 1; count < argc; ++count) {
-			if(strcmp(argv[count], "-h") == 0 || strcmp(argv[count], "--help") == 0) {
-				print_usage(argv);
-			} else {
-				if(strncmp(argv[count], "--", 2) == 0) {
-					map_put(ret, argv[count] + 2, argv[count + 1]);
-					++count;
-				} else if(strncmp(argv[count], "-", 1) == 0) {
-					size_t len = strlen(argv[count]);
-					for(uint8_t chr = 1; chr < len; ++chr) {
-						char str[2] = {argv[count][chr], 0};
-						map_put(ret, map_get(abrev, str), argv[++count]);
-					}
-				} else {
-					map_put(ret, "_barname", argv[count]);
-				}
-			}
-		}
-	} else {
-		print_usage(argv);
-	}
-	map_free(abrev);
-	return ret;
 }
 
 void sig(int32_t signum) {
@@ -84,12 +54,71 @@ void sig(int32_t signum) {
 }
 
 int main(int argc, char** argv) {
-	struct map* args = parse_args(argc, argv);
-	char* bar_name = map_get(args, "_barname");
-	const char* config_str = map_get(args, "conf");
-	char* style_str = map_get(args, "style");
-	char* color_str = map_get(args, "color");
-
+	const struct option opts[] = {
+		{
+			.name = "help",
+			.has_arg = no_argument,
+			.flag = NULL,
+			.val = 'h'
+		},
+		{
+			.name = "bar",
+			.has_arg = required_argument,
+			.flag = NULL,
+			.val = 'b'
+		},
+		{
+			.name = "conf",
+			.has_arg = required_argument,
+			.flag = NULL,
+			.val = 'c'
+		},
+		{
+			.name = "style",
+			.has_arg = required_argument,
+			.flag = NULL,
+			.val = 's'
+		},
+		{
+			.name = "color",
+			.has_arg = required_argument,
+			.flag = NULL,
+			.val = 'C'
+		},
+		{
+			.name = NULL,
+			.has_arg = 0,
+			.flag = NULL,
+			.val = 0
+		}
+	};
+	char* bar_name = NULL;
+	const char* config_str = NULL;
+	char* style_str = NULL;
+	char* color_str = NULL;
+	char opt;
+	while((opt = getopt_long(argc, argv, "hb:c:s:C:", opts, NULL)) != -1) {
+		switch(opt) {
+		case 'h':
+			print_usage(argv);
+			break;
+		case 'b':
+			bar_name = optarg;
+			break;
+		case 'c':
+			config_str = optarg;
+			break;
+		case 's':
+			style_str = optarg;
+			break;
+		case 'C':
+			color_str = optarg;
+			break;
+		}
+	}
+	if(bar_name == NULL) {
+		bar_name = "all";
+	}
 	const char* home_dir = getenv("HOME");
 	const char* config_dir = "/.config/rootbar";
 	const char* color_f = "/.cache/wal/colors";
