@@ -5,3 +5,4 @@
 ^Release/rootbar$
 .+\.o$
 .+\.d$
+^\.hgrepos$
