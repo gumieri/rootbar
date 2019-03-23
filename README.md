@@ -17,3 +17,7 @@ Root Bar is a bar for wlroots based wayland compositors such as sway and was des
 	sudo rm /usr/bin/rootbar
 ## Bug Reports
 Please file bug reports at https://todo.sr.ht/~scoopta/rootbar
+## Contributing
+Please submit patches to https://lists.sr.ht/~scoopta/rootbar
+
+You can find documentation here https://man.sr.ht/hg.sr.ht/email.md
