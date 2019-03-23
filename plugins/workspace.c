@@ -19,9 +19,14 @@
 
 struct tmp {
 	struct workspace* this;
-	GtkLabel* label;
+	GtkEventBox* box;
 	const char* status;
 	char* name;
+};
+
+struct click_info {
+	struct workspace* this;
+	const char* name;
 };
 
 struct workspace {
@@ -47,12 +52,28 @@ static gboolean idle_remove(gpointer data) {
 
 static gboolean idle_add(gpointer data) {
 	struct tmp* tmp = data;
-	gtk_widget_set_name(GTK_WIDGET(tmp->label), tmp->status);
-	gtk_label_set_text(tmp->label, tmp->name);
+	GtkLabel* label = GTK_LABEL(gtk_bin_get_child(GTK_BIN(tmp->box)));
+	gtk_widget_set_name(GTK_WIDGET(label), tmp->status);
+	gtk_label_set_text(label, tmp->name);
 	free(tmp->name);
-	gtk_container_add(GTK_CONTAINER(tmp->this->box), GTK_WIDGET(tmp->label));
+	gtk_container_add(GTK_CONTAINER(tmp->this->box), GTK_WIDGET(tmp->box));
 	gtk_widget_show_all(GTK_WIDGET(tmp->this->box));
 	free(tmp);
+	return FALSE;
+}
+
+static gboolean click(GtkWidget* widget, GdkEvent* event, gpointer data) {
+	(void) widget;
+	(void) event;
+	struct click_info* info = data;
+	struct workspace* this = info->this;
+	char* cmd = utils_concat("workspace ", info->name);
+	char* payload = sway_ipc_send_message(this->ipc, SWAY_IPC_MESSAGE_RUN_COMMAND, cmd, SWAY_IPC_REPLY_COMMAND);
+	free(cmd);
+	if(payload == NULL) {
+		return FALSE;
+	}
+	free(payload);
 	return FALSE;
 }
 
@@ -60,32 +81,41 @@ static void ask_workspaces(void* data, const char* ignored) {
 	(void) ignored;
 	struct workspace* this = data;
 	char* payload = sway_ipc_send_message(this->ipc, SWAY_IPC_MESSAGE_GET_WORKSPACES, NULL, SWAY_IPC_REPLY_WORKSPACES);
+	if(payload == NULL) {
+		return;
+	}
 	struct json_object* arr = json_tokener_parse(payload);
 	free(payload);
 	size_t arr_s = json_object_array_length(arr);
 	g_idle_add(idle_remove, this);
 	for(size_t count = 0; count < arr_s; ++count) {
 		struct json_object* obj = json_object_array_get_idx(arr, count);
-		const char* num = json_object_get_string(json_object_object_get(obj, "num"));
 		const char* name = json_object_get_string(json_object_object_get(obj, "name"));
 		const char* output = json_object_get_string(json_object_object_get(obj, "output"));
 		bool urgent = json_object_get_boolean(json_object_object_get(obj, "urgent"));
 		bool focused = json_object_get_boolean(json_object_object_get(obj, "focused"));
 		bool visible = json_object_get_boolean(json_object_object_get(obj, "visible"));
 		if(this->show_all || strcmp(output, this->output_name) == 0) {
-			GtkLabel* label = map_get(this->labels, num);
-			if(label == NULL) {
-				label = GTK_LABEL(gtk_label_new(name));
-				g_object_ref(label);
+			GtkEventBox* box = map_get(this->labels, name);
+			if(box == NULL) {
+				box = GTK_EVENT_BOX(gtk_event_box_new());
+				g_object_ref(box);
+				GtkWidget* label = gtk_label_new(name);
 				GtkStyleContext* context = gtk_widget_get_style_context(GTK_WIDGET(label));
 				gtk_style_context_add_class(context, this->plugin_name);
 				gtk_style_context_add_class(context, this->bar_name);
 				gtk_widget_set_name(GTK_WIDGET(label), this->inactive);
-				map_put_void(this->labels, num, label);
+				gtk_container_add(GTK_CONTAINER(box), label);
+				gtk_widget_add_events(GTK_WIDGET(box), GDK_BUTTON_PRESS);
+				struct click_info* info = malloc(sizeof(struct click_info));
+				info->name = strdup(name);
+				info->this = this;
+				g_signal_connect(GTK_WIDGET(box), "button-press-event", G_CALLBACK(click), info);
+				map_put_void(this->labels, name, box);
 			}
 			struct tmp* tmp = malloc(sizeof(struct tmp));
 			tmp->this = this;
-			tmp->label = label;
+			tmp->box = box;
 			tmp->name = strdup(name);
 			if(urgent) {
 				tmp->status = this->urgent;
