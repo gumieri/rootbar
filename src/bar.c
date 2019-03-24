@@ -289,6 +289,12 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name,
 				node->get_info = dlsym(plugin, "get_info");
 			}
 
+			if(node->get_info == NULL) {
+				fprintf(stderr, "This plugin has no get_info function\n");
+				free(node);
+				goto plugin_incr;
+			}
+
 			const char** arg_names = NULL;
 			size_t arg_count = 0;
 			if(get_arg_names != NULL && get_arg_count != NULL) {
