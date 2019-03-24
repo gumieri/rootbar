@@ -10,6 +10,7 @@ C_SRCS += \
 ../plugins/external.c \
 ../plugins/image.c \
 ../plugins/memory.c \
+../plugins/notification.c \
 ../plugins/text.c \
 ../plugins/window.c \
 ../plugins/workspace.c 
@@ -21,6 +22,7 @@ OBJS += \
 ./plugins/external.o \
 ./plugins/image.o \
 ./plugins/memory.o \
+./plugins/notification.o \
 ./plugins/text.o \
 ./plugins/window.o \
 ./plugins/workspace.o 
@@ -32,6 +34,7 @@ C_DEPS += \
 ./plugins/external.d \
 ./plugins/image.d \
 ./plugins/memory.d \
+./plugins/notification.d \
 ./plugins/text.d \
 ./plugins/window.d \
 ./plugins/workspace.d 
