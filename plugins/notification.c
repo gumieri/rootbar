@@ -19,19 +19,19 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include <gio/gio.h>
 
 static const char* arg_names[] = {"exec"};
 
-struct notification {
-	const char* exec;
-	char* summary, *body, *app_name;
-	uint32_t id;
-};
+bool running = false;
+const char* exec;
+char* _summary, *_body, *_app_name;
+uint32_t id;
 
 static void dbus_method_call(GDBusConnection* connection, const gchar* sender, const gchar* object_path, const gchar* interface_name, const gchar* method_name, GVariant* parameters, GDBusMethodInvocation* invocation, gpointer data) {
 	(void) sender;
-	struct notification* this = data;
+	(void) data;
 	if(strcmp(method_name, "GetServerInformation") == 0) {
 		GVariant* ret = g_variant_new("(ssss)", "rootbar", "Scoopta", "0.0.1", "1.2");
 		g_dbus_method_invocation_return_value(invocation, ret);
@@ -43,24 +43,24 @@ static void dbus_method_call(GDBusConnection* connection, const gchar* sender, c
 		int32_t expire_timeout;
 		g_variant_get(parameters, "(&su&s&s&sasa{sv}i)", &app_name, &replaces_id, &app_icon, &summary, &body, &actions, &hints, &expire_timeout);
 		g_variant_iter_free(actions);
-		if(this->summary != NULL) {
-			free(this->summary);
+		if(_summary != NULL) {
+			free(_summary);
 		}
-		if(this->body != NULL) {
-			free(this->body);
+		if(_body != NULL) {
+			free(_body);
 		}
-		if(this->app_name != NULL) {
-			free(this->app_name);
+		if(_app_name != NULL) {
+			free(_app_name);
 		}
-		this->summary = strdup(summary);
-		this->body = strdup(body);
-		this->app_name = strdup(app_name);
-		if(this->exec != NULL && access(this->exec, X_OK) == 0) {
+		_summary = strdup(summary);
+		_body = strdup(body);
+		_app_name = strdup(app_name);
+		if(exec != NULL && access(exec, X_OK) == 0) {
 			if(fork() == 0) {
-				execlp(this->exec, this->app_name, this->summary, this->body, NULL);
+				execlp(exec, _app_name, _summary, _body, NULL);
 			}
 		}
-		GVariant* ret = g_variant_new("(u)", ++this->id);
+		GVariant* ret = g_variant_new("(u)", ++id);
 		g_dbus_method_invocation_return_value(invocation, ret);
 	} else if(strcmp(method_name, "GetCapabilities") == 0) {
 		GVariantBuilder* builder = g_variant_builder_new(G_VARIANT_TYPE("as"));
@@ -346,10 +346,12 @@ static void name_lost(GDBusConnection* connection, const gchar* name, gpointer d
 }
 
 void* notification_init(struct map* props) {
-	struct notification* this = calloc(1, sizeof(struct notification));
-	this->exec = map_get(props, "exec");
-	g_bus_own_name(G_BUS_TYPE_SESSION, "org.freedesktop.Notifications", G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE, NULL, name_acquired, name_lost, this, NULL);
-	return this;
+	if(!running) {
+		running = true;
+		exec = map_get(props, "exec");
+		g_bus_own_name(G_BUS_TYPE_SESSION, "org.freedesktop.Notifications", G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE, NULL, name_acquired, name_lost, NULL, NULL);
+	}
+	return NULL;
 }
 
 const char** notification_get_arg_names() {
@@ -361,6 +363,6 @@ size_t notification_get_arg_count() {
 }
 
 void notification_get_info(void* data, const char* format, char* out, size_t size) {
-	struct notification* this = data;
-	snprintf(out, size, format, this->summary, this->body, this->app_name);
+	(void) data;
+	snprintf(out, size, format, _summary, _body, _app_name);
 }
