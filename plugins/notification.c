@@ -25,7 +25,7 @@ static const char* arg_names[] = {"exec"};
 
 struct notification {
 	const char* exec;
-	char* summary, *body;
+	char* summary, *body, *app_name;
 	uint32_t id;
 };
 
@@ -49,11 +49,15 @@ static void dbus_method_call(GDBusConnection* connection, const gchar* sender, c
 		if(this->body != NULL) {
 			free(this->body);
 		}
+		if(this->app_name != NULL) {
+			free(this->app_name);
+		}
 		this->summary = strdup(summary);
 		this->body = strdup(body);
+		this->app_name = strdup(app_name);
 		if(this->exec != NULL && access(this->exec, X_OK) == 0) {
 			if(fork() == 0) {
-				execlp(this->exec, this->summary, this->body, NULL);
+				execlp(this->exec, this->app_name, this->summary, this->body, NULL);
 			}
 		}
 		GVariant* ret = g_variant_new("(u)", ++this->id);
@@ -358,5 +362,5 @@ size_t notification_get_arg_count() {
 
 void notification_get_info(void* data, const char* format, char* out, size_t size) {
 	struct notification* this = data;
-	snprintf(out, size, format, this->summary, this->body);
+	snprintf(out, size, format, this->summary, this->body, this->app_name);
 }
