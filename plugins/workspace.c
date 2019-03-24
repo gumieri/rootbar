@@ -80,10 +80,10 @@ static gboolean click(GtkWidget* widget, GdkEvent* event, gpointer data) {
 static void ask_workspaces(void* data, const char* ignored) {
 	(void) ignored;
 	struct workspace* this = data;
-	char* payload = sway_ipc_send_message(this->ipc, SWAY_IPC_MESSAGE_GET_WORKSPACES, NULL, SWAY_IPC_REPLY_WORKSPACES);
-	if(payload == NULL) {
-		return;
-	}
+	char* payload;
+	do {
+		payload = sway_ipc_send_message(this->ipc, SWAY_IPC_MESSAGE_GET_WORKSPACES, NULL, SWAY_IPC_REPLY_WORKSPACES);
+	} while(payload == NULL);
 	struct json_object* arr = json_tokener_parse(payload);
 	free(payload);
 	size_t arr_s = json_object_array_length(arr);
