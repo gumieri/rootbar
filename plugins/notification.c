@@ -379,6 +379,7 @@ void notification_get_info(void* data, const char* format, char* out, size_t siz
 		}
 		if(comma_count > 3) {
 			fprintf(stderr, "That's too many display options\n");
+			free(t_display);
 			return;
 		}
 		for(size_t count = 0; count < comma_count; ++count) {
