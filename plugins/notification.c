@@ -61,7 +61,7 @@ static void dbus_method_call(GDBusConnection* connection, const gchar* sender, c
 	} else if(strcmp(method_name, "GetCapabilities") == 0) {
 		GVariantBuilder* builder = g_variant_builder_new(G_VARIANT_TYPE("as"));
 		g_variant_builder_add(builder, "s", "body");
-		GVariant* ret = g_variant_new("as", builder);
+		GVariant* ret = g_variant_new("(as)", builder);
 		g_variant_builder_unref(builder);
 		g_dbus_method_invocation_return_value(invocation, ret);
 	} else if(strcmp(method_name, "CloseNotification") == 0) {
