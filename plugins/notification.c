@@ -22,10 +22,10 @@
 #include <stdbool.h>
 #include <gio/gio.h>
 
-static const char* arg_names[] = {"exec"};
+static const char* arg_names[] = {"exec", "display"};
 
 bool running = false;
-const char* exec;
+const char* exec, *display;
 char* _summary, *_body, *_app_name;
 uint32_t id;
 
@@ -349,6 +349,7 @@ void* notification_init(struct map* props) {
 	if(!running) {
 		running = true;
 		exec = map_get(props, "exec");
+		display = map_get(props, "display");
 		g_bus_own_name(G_BUS_TYPE_SESSION, "org.freedesktop.Notifications", G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE, NULL, name_acquired, name_lost, NULL, NULL);
 	}
 	return NULL;
@@ -364,5 +365,33 @@ size_t notification_get_arg_count() {
 
 void notification_get_info(void* data, const char* format, char* out, size_t size) {
 	(void) data;
-	snprintf(out, size, format, _summary, _body, _app_name);
+	char* info[3];
+	memset(info, 0, 3 * sizeof(char*));
+	if(display != NULL) {
+		char* t_display = strdup(display);
+		char* tmp_display = t_display;
+		char* comma = strchr(tmp_display, ',');
+		size_t comma_count = 1;
+		while(comma != NULL) {
+			++comma_count;
+			*comma = 0;
+			comma = strchr(comma + 1, ',');
+		}
+		if(comma_count > 3) {
+			fprintf(stderr, "That's too many display options\n");
+			return;
+		}
+		for(size_t count = 0; count < comma_count; ++count) {
+			if(strcmp(tmp_display, "app_name") == 0 && _app_name != NULL) {
+				info[count] = _app_name;
+			} else if(strcmp(tmp_display, "summary") == 0 && _summary != NULL) {
+				info[count] = _summary;
+			} else if(strcmp(tmp_display, "body") == 0 && _body != NULL) {
+				info[count] = _body;
+			}
+			tmp_display += strlen(tmp_display) + 1;
+		}
+		free(t_display);
+	}
+	snprintf(out, size, format, info[0], info[1], info[2]);
 }
