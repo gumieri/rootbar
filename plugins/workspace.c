@@ -33,7 +33,7 @@ struct workspace {
 	const char* output_name, *plugin_name, *bar_name;
 	GtkBox* box;
 	bool show_all;
-	struct sway_ipc* ipc;
+	struct sway_ipc* ipc, *click_ipc;
 	struct map* labels;
 	const char* inactive, *urgent, *focused, *visible;
 };
@@ -68,11 +68,8 @@ static gboolean click(GtkWidget* widget, GdkEvent* event, gpointer data) {
 	struct click_info* info = data;
 	struct workspace* this = info->this;
 	char* cmd = utils_concat("workspace ", info->name);
-	char* payload = sway_ipc_send_message(this->ipc, SWAY_IPC_MESSAGE_RUN_COMMAND, cmd, SWAY_IPC_REPLY_COMMAND);
+	char* payload = sway_ipc_send_message(this->click_ipc, SWAY_IPC_MESSAGE_RUN_COMMAND, cmd, SWAY_IPC_REPLY_COMMAND);
 	free(cmd);
-	if(payload == NULL) {
-		return FALSE;
-	}
 	free(payload);
 	return FALSE;
 }
@@ -80,10 +77,7 @@ static gboolean click(GtkWidget* widget, GdkEvent* event, gpointer data) {
 static void ask_workspaces(void* data, const char* ignored) {
 	(void) ignored;
 	struct workspace* this = data;
-	char* payload;
-	do {
-		payload = sway_ipc_send_message(this->ipc, SWAY_IPC_MESSAGE_GET_WORKSPACES, NULL, SWAY_IPC_REPLY_WORKSPACES);
-	} while(payload == NULL);
+	char* payload = sway_ipc_send_message(this->ipc, SWAY_IPC_MESSAGE_GET_WORKSPACES, NULL, SWAY_IPC_REPLY_WORKSPACES);
 	struct json_object* arr = json_tokener_parse(payload);
 	free(payload);
 	size_t arr_s = json_object_array_length(arr);
@@ -154,6 +148,7 @@ void workspace_init(const char* output_name, GtkBox* box, bool show_all, const c
 	gtk_widget_set_name(GTK_WIDGET(box), plugin_name);
 	gtk_box_set_spacing(box, padding);
 	this->ipc = sway_ipc_init();
+	this->click_ipc = sway_ipc_init();
 	ask_workspaces(this, NULL);
 	sway_ipc_subscribe(this->ipc, SWAY_IPC_EVENT_WORKSPACE, ask_workspaces, this);
 }

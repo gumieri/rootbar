@@ -163,9 +163,7 @@ char* sway_ipc_send_message(struct sway_ipc* this, enum sway_ipc_message message
 	buffer = malloc(buff_s);
 	recv(this->msg_sock, buffer, buff_s, 0);
 	if(strncmp(buffer, MAGIC, magic_s) != 0) {
-#ifdef DEBUG
 		fprintf(stderr, "Invalid magic\n");
-#endif
 		free(buffer);
 		return NULL;
 	}
@@ -180,9 +178,7 @@ char* sway_ipc_send_message(struct sway_ipc* this, enum sway_ipc_message message
 	}
 	if(type != expected_reply) {
 		free(buffer);
-#ifdef DEBUG
 		fprintf(stderr, "Unexpected reply\n");
-#endif
 		return NULL;
 	}
 	return buffer;
