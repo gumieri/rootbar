@@ -41,7 +41,8 @@ struct workspace {
 static void for_each(GtkWidget* widget, gpointer data) {
 	struct workspace* this = data;
 	gtk_container_remove(GTK_CONTAINER(this->box), widget);
-	gtk_widget_set_name(widget, this->inactive);
+	GtkWidget* label = gtk_bin_get_child(GTK_BIN(widget));
+	gtk_widget_set_name(label, this->inactive);
 }
 
 static gboolean idle_remove(gpointer data) {
