@@ -290,7 +290,7 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name,
 			}
 
 			if(node->get_info == NULL) {
-				fprintf(stderr, "This plugin has no get_info function\n");
+				fprintf(stderr, "%s has no get_info function\n", plugin_name);
 				free(node);
 				goto plugin_incr;
 			}
