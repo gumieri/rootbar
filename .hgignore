@@ -6,3 +6,4 @@
 .+\.o$
 .+\.d$
 ^\.hgrepos$
+^Development$
