@@ -210,13 +210,11 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name,
 	gtk_widget_set_name(left, "left");
 	GtkStyleContext* context = gtk_widget_get_style_context(left);
 	gtk_style_context_add_class(context, "left");
-	gtk_style_context_add_class(context, bar_name);
 
 	GtkWidget* center = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	gtk_widget_set_name(center, "center");
 	context = gtk_widget_get_style_context(center);
 	gtk_style_context_add_class(context, "center");
-	gtk_style_context_add_class(context, bar_name);
 
 	GtkWidget* center_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	gtk_box_set_center_widget(GTK_BOX(center), center_box);
@@ -225,7 +223,6 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name,
 	gtk_widget_set_name(right, "right");
 	context = gtk_widget_get_style_context(right);
 	gtk_style_context_add_class(context, "right");
-	gtk_style_context_add_class(context, bar_name);
 
 	gtk_container_add(root, left);
 	gtk_container_add(root, center);
@@ -260,7 +257,7 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name,
 		if(workspace) {
 			widget = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 			char* show_all = config_get(config, plugin_name, "-show_all", "false");
-			workspace_init(output_name, GTK_BOX(widget), strcmp(show_all, "true") == 0, plugin_name, padding, bar_name);
+			workspace_init(output_name, GTK_BOX(widget), strcmp(show_all, "true") == 0, plugin_name, padding);
 		} else {
 			char* dso = strstr(dso_name, ".so");
 			void* (*init)(struct map* props);
@@ -325,7 +322,6 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name,
 			wl_list_insert(&this->plugins, &node->link);
 		}
 		gtk_widget_set_name(widget, plugin_name);
-		gtk_style_context_add_class(gtk_widget_get_style_context(widget), bar_name);
 		char* position = config_get(config, plugin_name, "-position", "right");
 		if(strcmp(position, "left") == 0) {
 			gtk_box_pack_start(GTK_BOX(left), widget, false, false, padding);

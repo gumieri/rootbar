@@ -30,7 +30,7 @@ struct click_info {
 };
 
 struct workspace {
-	const char* output_name, *plugin_name, *bar_name;
+	const char* output_name, *plugin_name;
 	GtkBox* box;
 	bool show_all;
 	struct sway_ipc* ipc, *click_ipc;
@@ -98,7 +98,6 @@ static void ask_workspaces(void* data, const char* ignored) {
 				GtkWidget* label = gtk_label_new(name);
 				GtkStyleContext* context = gtk_widget_get_style_context(GTK_WIDGET(label));
 				gtk_style_context_add_class(context, this->plugin_name);
-				gtk_style_context_add_class(context, this->bar_name);
 				gtk_widget_set_name(GTK_WIDGET(label), this->inactive);
 				gtk_container_add(GTK_CONTAINER(box), label);
 				gtk_widget_add_events(GTK_WIDGET(box), GDK_BUTTON_PRESS);
@@ -134,13 +133,12 @@ static char* concat(const char* plugin_name, const char* status) {
 	return buffer;
 }
 
-void workspace_init(const char* output_name, GtkBox* box, bool show_all, const char* plugin_name, uint32_t padding, const char* bar_name) {
+void workspace_init(const char* output_name, GtkBox* box, bool show_all, const char* plugin_name, uint32_t padding) {
 	struct workspace* this = calloc(1, sizeof(struct workspace));
 	this->output_name = output_name;
 	this->box = box;
 	this->show_all = show_all;
 	this->plugin_name = plugin_name;
-	this->bar_name = bar_name;
 	this->labels = map_init_void();
 	this->inactive = concat(plugin_name, "-inactive");
 	this->urgent = concat(plugin_name, "-urgent");

@@ -26,6 +26,6 @@
 #include <json-c/json_object.h>
 #include <json-c/json_tokener.h>
 
-void workspace_init(const char* output_name, GtkBox* box, bool show_all, const char* plugin_name, uint32_t padding, const char* bar_name);
+void workspace_init(const char* output_name, GtkBox* box, bool show_all, const char* plugin_name, uint32_t padding);
 
 #endif
