@@ -68,6 +68,7 @@ static void dbus_method_call(GDBusConnection* connection, const gchar* sender, c
 		uint32_t id;
 		g_variant_get(parameters, "(u)", &id);
 		GVariant* param = g_variant_new("(uu)", id, 3);
+		g_dbus_method_invocation_return_value(invocation, NULL);
 		g_dbus_connection_emit_signal(connection, NULL, object_path, interface_name, "NotificationClosed", param, NULL);
 	}
 }
