@@ -102,6 +102,11 @@ static gboolean idle_add(gpointer data) {
 		} else {
 			char output[node->length + 1];
 			node->get_info(node->plugin, node->format, output, node->length + 1);
+			if(strlen(output) == node->length) {
+				for(size_t count = 0; count < 3; ++count) {
+					output[node->length - 1 - count] = '.';
+				}
+			}
 			gtk_label_set_text(GTK_LABEL(node->widget), output);
 		}
 	}
