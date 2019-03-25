@@ -107,6 +107,10 @@ static gboolean idle_add(gpointer data) {
 					output[node->length - 1 - count] = '.';
 				}
 			}
+			char* lf = strchr(output, '\n');
+			if(lf != NULL) {
+				*lf = 0;
+			}
 			gtk_label_set_text(GTK_LABEL(node->widget), output);
 		}
 	}
