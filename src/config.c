@@ -22,13 +22,13 @@ void config_load(struct map* map, const char* config) {
 	char* line = NULL;
 	size_t size = 0;
 	while(getline(&line, &size, file) != -1) {
-		char* equals = strchr(line, '=');
-		if(equals == NULL) {
-			continue;
-		}
 		char* hash = strchr(line, '#');
 		if(hash != NULL) {
 			*hash = 0;
+		}
+		char* equals = strchr(line, '=');
+		if(equals == NULL) {
+			continue;
 		}
 		*equals = 0;
 		char* value = equals + 1;
