@@ -57,7 +57,7 @@ static void dbus_method_call(GDBusConnection* connection, const gchar* sender, c
 		_app_name = strdup(app_name);
 		if(exec != NULL && access(exec, X_OK) == 0) {
 			if(fork() == 0) {
-				execlp(exec, _app_name, _summary, _body, NULL);
+				execlp(exec, exec, _app_name, _summary, _body, NULL);
 			}
 		}
 		GVariant* ret = g_variant_new("(u)", ++id);
