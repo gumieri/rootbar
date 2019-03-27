@@ -35,5 +35,5 @@ void battery_get_info(void* data, const char* format, char* out, size_t size) {
 	g_variant_get(percentage, "(v)", &ret);
 	g_variant_get(ret, "d", &percent);
 	g_variant_unref(percentage);
-	snprintf(out, size, format, percent);
+	snprintf(out, size, format, percent, "%");
 }
