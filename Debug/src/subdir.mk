@@ -9,8 +9,7 @@ C_SRCS += \
 ../src/main.c \
 ../src/map.c \
 ../src/sway_ipc.c \
-../src/utils.c \
-../src/volume.c 
+../src/utils.c 
 
 OBJS += \
 ./src/bar.o \
@@ -18,8 +17,7 @@ OBJS += \
 ./src/main.o \
 ./src/map.o \
 ./src/sway_ipc.o \
-./src/utils.o \
-./src/volume.o 
+./src/utils.o 
 
 C_DEPS += \
 ./src/bar.d \
@@ -27,8 +25,7 @@ C_DEPS += \
 ./src/main.d \
 ./src/map.d \
 ./src/sway_ipc.d \
-./src/utils.d \
-./src/volume.d 
+./src/utils.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
