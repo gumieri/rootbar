@@ -5,6 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../plugins/action.c \
+../plugins/battery.c \
 ../plugins/bind_mode.c \
 ../plugins/clock.c \
 ../plugins/cpu.c \
@@ -19,6 +20,7 @@ C_SRCS += \
 
 OBJS += \
 ./plugins/action.o \
+./plugins/battery.o \
 ./plugins/bind_mode.o \
 ./plugins/clock.o \
 ./plugins/cpu.o \
@@ -33,6 +35,7 @@ OBJS += \
 
 C_DEPS += \
 ./plugins/action.d \
+./plugins/battery.d \
 ./plugins/bind_mode.d \
 ./plugins/clock.d \
 ./plugins/cpu.d \
