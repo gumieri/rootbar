@@ -395,5 +395,9 @@ void notification_get_info(void* data, const char* format, char* out, size_t siz
 		}
 		free(t_display);
 	}
-	snprintf(out, size, format, info[0], info[1], info[2]);
+	if(info[0] == NULL) {
+		strcpy(out, "");
+	} else {
+		snprintf(out, size, format, info[0], info[1], info[2]);
+	}
 }
