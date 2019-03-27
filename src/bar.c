@@ -30,7 +30,6 @@ struct plugin_node {
 	char* format;
 	uint64_t length;
 	void (*get_info)(void* data, const char* format, char* out, size_t size);
-	bool is_image;
 	struct wl_list link;
 };
 
@@ -92,27 +91,18 @@ static gboolean idle_add(gpointer data) {
 	struct bar* this = data;
 	struct plugin_node* node;
 	wl_list_for_each(node, &this->plugins, link) {
-		if(node->is_image) {
-			char path[255];
-			node->get_info(node->plugin, node->format, path, 255);
-			if(access(path, R_OK) != 0) {
-				continue;
+		char output[node->length + 1];
+		node->get_info(node->plugin, node->format, output, node->length + 1);
+		if(strlen(output) == node->length) {
+			for(size_t count = 0; count < 3; ++count) {
+				output[node->length - 1 - count] = '.';
 			}
-			gtk_image_set_from_pixbuf(GTK_IMAGE(node->widget), gdk_pixbuf_new_from_file_at_scale(path, -1, this->height, TRUE, NULL));
-		} else {
-			char output[node->length + 1];
-			node->get_info(node->plugin, node->format, output, node->length + 1);
-			if(strlen(output) == node->length) {
-				for(size_t count = 0; count < 3; ++count) {
-					output[node->length - 1 - count] = '.';
-				}
-			}
-			char* lf = strchr(output, '\n');
-			if(lf != NULL) {
-				*lf = 0;
-			}
-			gtk_label_set_text(GTK_LABEL(node->widget), output);
 		}
+		char* lf = strchr(output, '\n');
+		if(lf != NULL) {
+			*lf = 0;
+		}
+		gtk_label_set_text(GTK_LABEL(node->widget), output);
 	}
 	return FALSE;
 }
@@ -135,7 +125,7 @@ static void* get_plugin_func(const char* prefix, const char* suffix) {
 	return fun;
 }
 
-void bar_init(struct map* config, const char* bar_name, const char* output_name, const char* config_location) {
+void bar_init(struct map* config, const char* bar_name, char* output_name, const char* config_location) {
 	if(output_name == NULL) {
 		fprintf(stderr, "No output specified for %s\n", bar_name);
 		return;
@@ -250,85 +240,83 @@ void bar_init(struct map* config, const char* bar_name, const char* output_name,
 			fprintf(stderr, "No DSO specified for %s\n", plugin_name);
 			goto plugin_incr;
 		}
-		bool workspace = strcmp(dso_name, "workspace") == 0;
-		char* padding_default = "10";
-		if(workspace) {
-			padding_default = "20";
+
+		uint64_t padding = strtol(config_get(config, plugin_name, "-padding", "10"), NULL, 10);
+		char* dso = strstr(dso_name, ".so");
+		void* (*init)(struct map* props);
+		void (*init_adv)(struct map* props, GtkBox* box);
+		const char** (*get_arg_names)();
+		size_t (*get_arg_count)();
+		bool (*is_advanced)();
+		void (*get_info)(void* data, const char* format, char* out, size_t size);
+		if(dso == NULL) {
+			char* init_str = "_init";
+			char* get_arg_names_str = "_get_arg_names";
+			char* get_arg_count_str = "_get_arg_count";
+			char* is_advanced_str = "_is_advanced";
+			char* get_info_str = "_get_info";
+			init = get_plugin_func(dso_name, init_str);
+			init_adv = get_plugin_func(dso_name, init_str);
+			get_arg_names = get_plugin_func(dso_name, get_arg_names_str);
+			get_arg_count = get_plugin_func(dso_name, get_arg_count_str);
+			is_advanced = get_plugin_func(dso_name, is_advanced_str);
+			get_info = get_plugin_func(dso_name, get_info_str);
+		} else {
+			char* plugins_dir = utils_concat(config_location, "/plugins/");
+			char* full_name = utils_concat(plugins_dir, dso_name);
+			void* plugin = dlopen(full_name, RTLD_LAZY);
+			free(full_name);
+			free(plugins_dir);
+			init = dlsym(plugin, "init");
+			get_arg_names = dlsym(plugin, "get_arg_names");
+			get_arg_count = dlsym(plugin, "get_arg_count");
+			is_advanced = dlsym(plugin, "is_advanced");
+			get_info = dlsym(plugin, "get_info");
+		}
+
+		bool is_adv = is_advanced != NULL && is_advanced();
+
+		if(get_info == NULL && !is_adv) {
+			fprintf(stderr, "%s has no get_info function\n", plugin_name);
+			goto plugin_incr;
+		}
+
+		const char** arg_names = NULL;
+		size_t arg_count = 0;
+		if(get_arg_names != NULL && get_arg_count != NULL) {
+			arg_names = get_arg_names();
+			arg_count = get_arg_count();
+		}
+
+		struct map* props = map_init();
+		for(size_t count = 0; count < arg_count; ++count) {
+			const char* arg = arg_names[count];
+			char* hyphen_name = malloc(strlen(arg) + 2);
+			strcpy(hyphen_name, "-");
+			strcat(hyphen_name, arg);
+			map_put(props, arg, config_get(config, plugin_name, hyphen_name, NULL));
+			free(hyphen_name);
 		}
 
 		GtkWidget* widget;
-		uint64_t padding = strtol(config_get(config, plugin_name, "-padding", padding_default), NULL, 10);
-		if(workspace) {
+
+		if(is_adv) {
 			widget = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-			char* show_all = config_get(config, plugin_name, "-show_all", "false");
-			workspace_init(output_name, GTK_BOX(widget), strcmp(show_all, "true") == 0, plugin_name, padding);
+			map_put(props, "_output", output_name);
+			map_put(props, "_plugin", plugin_name);
+			init_adv(props, GTK_BOX(widget));
 		} else {
-			char* dso = strstr(dso_name, ".so");
-			void* (*init)(struct map* props);
-			const char** (*get_arg_names)();
-			size_t (*get_arg_count)();
-			bool (*is_image)();
-			struct plugin_node* node = malloc(sizeof(struct plugin_node));
-			if(dso == NULL) {
-				char* init_str = "_init";
-				char* get_arg_names_str = "_get_arg_names";
-				char* get_arg_count_str = "_get_arg_count";
-				char* is_image_str = "_is_image";
-				char* get_info_str = "_get_info";
-				init = get_plugin_func(dso_name, init_str);
-				get_arg_names = get_plugin_func(dso_name, get_arg_names_str);
-				get_arg_count = get_plugin_func(dso_name, get_arg_count_str);
-				is_image = get_plugin_func(dso_name, is_image_str);
-				node->get_info = get_plugin_func(dso_name, get_info_str);
-			} else {
-				char* plugins_dir = utils_concat(config_location, "/plugins/");
-				char* full_name = utils_concat(plugins_dir, dso_name);
-				void* plugin = dlopen(full_name, RTLD_LAZY);
-				free(full_name);
-				free(plugins_dir);
-				init = dlsym(plugin, "init");
-				get_arg_names = dlsym(plugin, "get_arg_names");
-				get_arg_count = dlsym(plugin, "get_arg_count");
-				is_image = dlsym(plugin, "is_image");
-				node->get_info = dlsym(plugin, "get_info");
-			}
-
-			if(node->get_info == NULL) {
-				fprintf(stderr, "%s has no get_info function\n", plugin_name);
-				free(node);
-				goto plugin_incr;
-			}
-
-			const char** arg_names = NULL;
-			size_t arg_count = 0;
-			if(get_arg_names != NULL && get_arg_count != NULL) {
-				arg_names = get_arg_names();
-				arg_count = get_arg_count();
-			}
-
-			struct map* props = map_init();
-			for(size_t count = 0; count < arg_count; ++count) {
-				const char* arg = arg_names[count];
-				char* hyphen_name = malloc(strlen(arg) + 2);
-				strcpy(hyphen_name, "-");
-				strcat(hyphen_name, arg);
-				map_put(props, arg, config_get(config, plugin_name, hyphen_name, NULL));
-				free(hyphen_name);
-			}
 			void* plugin = NULL;
 			if(init != NULL) {
 				plugin = init(props);
 			}
-			node->is_image = is_image != NULL && is_image();
-			if(node->is_image) {
-				widget = gtk_image_new();
-			} else {
-				widget = gtk_label_new(NULL);
-			}
-			node->plugin = plugin;
+			struct plugin_node* node = malloc(sizeof(struct plugin_node));
+			widget = gtk_label_new(NULL);
 			node->widget = widget;
+			node->plugin = plugin;
 			node->format = config_get(config, plugin_name, "-format", "%s");
 			node->length = strtol(config_get(config, plugin_name, "-length", "15"), NULL, 10);
+			node->get_info = get_info;
 			wl_list_insert(&this->plugins, &node->link);
 		}
 		gtk_widget_set_name(widget, plugin_name);

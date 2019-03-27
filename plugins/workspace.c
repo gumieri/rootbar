@@ -15,7 +15,13 @@
     along with Root Bar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <workspace.h>
+#include <stdbool.h>
+#include <gtk/gtk.h>
+#include <sway_ipc.h>
+#include <json-c/json_object.h>
+#include <json-c/json_tokener.h>
+
+static const char* arg_names[] = {"show_all", "padding"};
 
 struct tmp {
 	struct workspace* this;
@@ -133,21 +139,41 @@ static char* concat(const char* plugin_name, const char* status) {
 	return buffer;
 }
 
-void workspace_init(const char* output_name, GtkBox* box, bool show_all, const char* plugin_name, uint32_t padding) {
+void workspace_init(struct map* props, GtkBox* box) {
 	struct workspace* this = calloc(1, sizeof(struct workspace));
-	this->output_name = output_name;
+	this->output_name = map_get(props, "_output");
 	this->box = box;
-	this->show_all = show_all;
-	this->plugin_name = plugin_name;
+	char* show_all_str = map_get(props, "show_all");
+	this->show_all = show_all_str != NULL && strcmp(show_all_str, "true") == 0;
+	this->plugin_name = map_get(props, "_plugin");
 	this->labels = map_init_void();
-	this->inactive = concat(plugin_name, "-inactive");
-	this->urgent = concat(plugin_name, "-urgent");
-	this->visible = concat(plugin_name, "-visible");
-	this->focused = concat(plugin_name, "-focused");
-	gtk_widget_set_name(GTK_WIDGET(box), plugin_name);
+	this->inactive = concat(this->plugin_name, "-inactive");
+	this->urgent = concat(this->plugin_name, "-urgent");
+	this->visible = concat(this->plugin_name, "-visible");
+	this->focused = concat(this->plugin_name, "-focused");
+	char* padding_str = map_get(props, "padding");
+	uint64_t padding;
+	if(padding_str == NULL) {
+		padding = 20;
+	} else {
+		padding = strtol(padding_str, NULL, 10);
+	}
+	gtk_widget_set_name(GTK_WIDGET(box), this->plugin_name);
 	gtk_box_set_spacing(box, padding);
 	this->ipc = sway_ipc_init();
 	this->click_ipc = sway_ipc_init();
 	ask_workspaces(this, NULL);
 	sway_ipc_subscribe(this->ipc, SWAY_IPC_EVENT_WORKSPACE, ask_workspaces, this);
+}
+
+bool workspace_is_advanced() {
+	return true;
+}
+
+const char** workspace_get_arg_names() {
+	return arg_names;
+}
+
+size_t workspace_get_arg_count() {
+	return sizeof(arg_names) / sizeof(char*);
 }

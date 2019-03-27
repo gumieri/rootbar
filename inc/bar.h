@@ -28,13 +28,12 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <gtk/gtk.h>
-#include <workspace.h>
 #include <gdk/gdkwayland.h>
 #include <wayland-client.h>
 #include <xdg-output-unstable-v1-client-protocol.h>
 #include <wlr-layer-shell-unstable-v1-client-protocol.h>
 
-void bar_init(struct map* config, const char* bar_name, const char* output_name, const char* config_location);
+void bar_init(struct map* config, const char* bar_name, char* output_name, const char* config_location);
 
 
 #endif
