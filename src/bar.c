@@ -268,6 +268,7 @@ void bar_init(struct map* config, const char* bar_name, char* output_name, const
 			free(full_name);
 			free(plugins_dir);
 			init = dlsym(plugin, "init");
+			init_adv = dlsym(plugin, "init");
 			get_arg_names = dlsym(plugin, "get_arg_names");
 			get_arg_count = dlsym(plugin, "get_arg_count");
 			is_advanced = dlsym(plugin, "is_advanced");
