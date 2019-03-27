@@ -30,6 +30,7 @@ struct plugin_node {
 	char* format;
 	uint64_t length;
 	void (*get_info)(void* data, const char* format, char* out, size_t size);
+	void (*click)(void* data);
 	struct wl_list link;
 };
 
@@ -85,6 +86,16 @@ static void config_surface(void* data, struct zwlr_layer_surface_v1* surface, ui
 	zwlr_layer_surface_v1_set_anchor(surface, ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT | location | ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT);
 	gtk_window_set_default_size(GTK_WINDOW(this->window), this->width, this->height);
 	gtk_widget_show_all(this->window);
+}
+
+static gboolean _click(GtkWidget* widget, GdkEvent* event, gpointer data) {
+	(void) widget;
+	(void) event;
+	struct plugin_node* node = data;
+	if(node->click != NULL) {
+		node->click(node->plugin);
+	}
+	return FALSE;
 }
 
 static gboolean idle_add(gpointer data) {
@@ -249,18 +260,21 @@ void bar_init(struct map* config, const char* bar_name, char* output_name, const
 		size_t (*get_arg_count)();
 		bool (*is_advanced)();
 		void (*get_info)(void* data, const char* format, char* out, size_t size);
+		void (*click)(void* data);
 		if(dso == NULL) {
 			char* init_str = "_init";
 			char* get_arg_names_str = "_get_arg_names";
 			char* get_arg_count_str = "_get_arg_count";
 			char* is_advanced_str = "_is_advanced";
 			char* get_info_str = "_get_info";
+			char* click_str = "_click";
 			init = get_plugin_func(dso_name, init_str);
 			init_adv = get_plugin_func(dso_name, init_str);
 			get_arg_names = get_plugin_func(dso_name, get_arg_names_str);
 			get_arg_count = get_plugin_func(dso_name, get_arg_count_str);
 			is_advanced = get_plugin_func(dso_name, is_advanced_str);
 			get_info = get_plugin_func(dso_name, get_info_str);
+			click = get_plugin_func(dso_name, click_str);
 		} else {
 			char* plugins_dir = utils_concat(config_location, "/plugins/");
 			char* full_name = utils_concat(plugins_dir, dso_name);
@@ -273,6 +287,7 @@ void bar_init(struct map* config, const char* bar_name, char* output_name, const
 			get_arg_count = dlsym(plugin, "get_arg_count");
 			is_advanced = dlsym(plugin, "is_advanced");
 			get_info = dlsym(plugin, "get_info");
+			click = dlsym(plugin, "click");
 		}
 
 		bool is_adv = is_advanced != NULL && is_advanced();
@@ -299,35 +314,40 @@ void bar_init(struct map* config, const char* bar_name, char* output_name, const
 			free(hyphen_name);
 		}
 
-		GtkWidget* widget;
+		GtkWidget* bar_widget, *user_widget;
 
 		if(is_adv) {
-			widget = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+			bar_widget = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+			user_widget = bar_widget;
 			map_put(props, "_output", output_name);
 			map_put(props, "_plugin", plugin_name);
-			init_adv(props, GTK_BOX(widget));
+			init_adv(props, GTK_BOX(bar_widget));
 		} else {
 			void* plugin = NULL;
 			if(init != NULL) {
 				plugin = init(props);
 			}
 			struct plugin_node* node = malloc(sizeof(struct plugin_node));
-			widget = gtk_label_new(NULL);
-			node->widget = widget;
+			bar_widget = gtk_event_box_new();
+			user_widget = gtk_label_new(NULL);
+			gtk_container_add(GTK_CONTAINER(bar_widget), user_widget);
+			g_signal_connect(GTK_WIDGET(bar_widget), "button-press-event", G_CALLBACK(_click), node);
+			node->widget = user_widget;
 			node->plugin = plugin;
 			node->format = config_get(config, plugin_name, "-format", "%s");
 			node->length = strtol(config_get(config, plugin_name, "-length", "15"), NULL, 10);
 			node->get_info = get_info;
+			node->click = click;
 			wl_list_insert(&this->plugins, &node->link);
 		}
-		gtk_widget_set_name(widget, plugin_name);
+		gtk_widget_set_name(user_widget, plugin_name);
 		char* position = config_get(config, plugin_name, "-position", "right");
 		if(strcmp(position, "left") == 0) {
-			gtk_box_pack_start(GTK_BOX(left), widget, false, false, padding);
+			gtk_box_pack_start(GTK_BOX(left), bar_widget, false, false, padding);
 		} else if(strcmp(position, "center") == 0) {
-			gtk_box_pack_start(GTK_BOX(center_box), widget, false, false, padding);
+			gtk_box_pack_start(GTK_BOX(center_box), bar_widget, false, false, padding);
 		} else if(strcmp(position, "right") == 0) {
-			gtk_box_pack_end(GTK_BOX(right), widget, false, false, padding);
+			gtk_box_pack_end(GTK_BOX(right), bar_widget, false, false, padding);
 		}
 		pthread_t thread;
 		pthread_create(&thread, NULL, run, this);
