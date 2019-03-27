@@ -22,3 +22,5 @@ Please file bug reports at https://todo.sr.ht/~scoopta/rootbar
 Please submit patches to https://lists.sr.ht/~scoopta/rootbar
 
 You can find documentation here https://man.sr.ht/hg.sr.ht/email.md
+## Packages
+If you're on Arch there's an unofficial AUR package https://aur.archlinux.org/packages/rootbar-hg/
