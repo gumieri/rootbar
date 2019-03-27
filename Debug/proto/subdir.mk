@@ -4,35 +4,23 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../src/bar.c \
-../src/config.c \
-../src/main.c \
-../src/map.c \
-../src/sway_ipc.c \
-../src/utils.c \
-../src/volume.c 
+../proto/wlr-layer-shell-unstable-v1-protocol.c \
+../proto/xdg-output-unstable-v1-protocol.c \
+../proto/xdg-shell-protocol.c 
 
 OBJS += \
-./src/bar.o \
-./src/config.o \
-./src/main.o \
-./src/map.o \
-./src/sway_ipc.o \
-./src/utils.o \
-./src/volume.o 
+./proto/wlr-layer-shell-unstable-v1-protocol.o \
+./proto/xdg-output-unstable-v1-protocol.o \
+./proto/xdg-shell-protocol.o 
 
 C_DEPS += \
-./src/bar.d \
-./src/config.d \
-./src/main.d \
-./src/map.d \
-./src/sway_ipc.d \
-./src/utils.d \
-./src/volume.d 
+./proto/wlr-layer-shell-unstable-v1-protocol.d \
+./proto/xdg-output-unstable-v1-protocol.d \
+./proto/xdg-shell-protocol.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-src/%.o: ../src/%.c
+proto/%.o: ../proto/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
 	gcc -DDEBUG -I../inc -O0 -g3 -Wall -Wextra -c -fmessage-length=0 -fsanitize=address `pkg-config --cflags gtk+-3.0` -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"

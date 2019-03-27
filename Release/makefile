@@ -9,6 +9,7 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include src/subdir.mk
+-include proto/subdir.mk
 -include plugins/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -30,7 +31,7 @@ all: rootbar
 rootbar: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L../lib -rdynamic -pthread -o "rootbar" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -rdynamic -pthread -o "rootbar" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
