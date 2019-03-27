@@ -24,11 +24,15 @@
 #include <signal.h>
 #include <getopt.h>
 #include <gtk/gtk.h>
+#include <pthread.h>
 #include <wayland-client.h>
 
 static char* CONFIG_LOCATION;
 static char* COLORS_LOCATION;
 static struct map* config;
+static bool restart = false;
+static pthread_mutex_t mutex;
+static pthread_cond_t _restart;
 
 static void print_usage(char** argv) {
 	char* slash = strrchr(argv[0], '/');
@@ -49,8 +53,28 @@ static void print_usage(char** argv) {
 }
 
 void sig(int32_t signum) {
-	(void) signum;
-	exit(0);
+	switch(signum) {
+	case SIGINT:
+		exit(0);
+		break;
+	case SIGUSR1:
+		restart = true;
+		pthread_mutex_lock(&mutex);
+		pthread_cond_broadcast(&_restart);
+		pthread_mutex_unlock(&mutex);
+		break;
+	}
+}
+
+static void* run_restart(void* data) {
+	char** argv = data;
+	while(!restart) {
+		pthread_mutex_lock(&mutex);
+		pthread_cond_wait(&_restart, &mutex);
+		pthread_mutex_unlock(&mutex);
+	}
+	execvp(argv[0], argv);
+	return NULL;
 }
 
 int main(int argc, char** argv) {
@@ -305,8 +329,13 @@ int main(int argc, char** argv) {
 	} else {
 		bar_init(config, bar_name, config_get(config, bar_name, "-output", NULL), CONFIG_LOCATION);
 	}
+	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&_restart, NULL);
+	pthread_t thread;
+	pthread_create(&thread, NULL, run_restart, argv);
 	struct sigaction sigact;
 	sigact.sa_handler = sig;
+	sigaction(SIGINT, &sigact, NULL);
 	sigaction(SIGUSR1, &sigact, NULL);
 	gtk_main();
 	return 0;
