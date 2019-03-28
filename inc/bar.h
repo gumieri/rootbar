@@ -23,6 +23,7 @@
 #include <utils.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <config.h>
 #include <stdint.h>
 #include <stdbool.h>

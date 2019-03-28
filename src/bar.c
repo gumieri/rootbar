@@ -24,6 +24,12 @@ struct output_node {
 	struct wl_list link;
 };
 
+enum iconify_mode {
+	ICONIFY_MODE_REPLACE,
+	ICONIFY_MODE_ADD,
+	ICONIFY_MODE_NONE
+};
+
 struct plugin_node {
 	void* plugin;
 	GtkWidget* widget;
@@ -31,6 +37,9 @@ struct plugin_node {
 	uint64_t length;
 	void (*get_info)(void* data, const char* format, char* out, size_t size);
 	void (*click)(void* data);
+	enum iconify_mode iconify;
+	char* icon;
+	uint64_t icon_interval;
 	struct wl_list link;
 };
 
@@ -104,6 +113,32 @@ static gboolean idle_add(gpointer data) {
 	wl_list_for_each(node, &this->plugins, link) {
 		char output[node->length + 1];
 		node->get_info(node->plugin, node->format, output, node->length + 1);
+		size_t out_s = strlen(output);
+		int64_t num = -1;
+		size_t num_offset = 0;
+		for(size_t count = 0; count < out_s; ++count) {
+			if(isdigit(output[count])) {
+				num = strtol(output + count, NULL, 10);
+				num_offset = count;
+				break;
+			}
+		}
+		if(node->iconify == ICONIFY_MODE_NONE || node->icon == NULL || num == -1) {
+			if(node->iconify != ICONIFY_MODE_NONE && node->icon == NULL) {
+				fprintf(stderr, "Iconify enabled but no icon provided");
+			}
+		} else if(node->iconify == ICONIFY_MODE_ADD) {
+			uint64_t icon_num = num / node->icon_interval;
+			size_t chr_len = strlen(node->icon);
+			size_t required = chr_len * icon_num;
+			if(required >= node->length) {
+				icon_num = node->length / chr_len;
+			}
+			output[num_offset] = 0;
+			for(size_t count = 0; count < icon_num; ++count) {
+				strcat(output, node->icon);
+			}
+		}
 		if(strlen(output) == node->length) {
 			for(size_t count = 0; count < 3; ++count) {
 				output[node->length - 1 - count] = '.';
@@ -328,6 +363,18 @@ void bar_init(struct map* config, const char* bar_name, char* output_name, const
 				plugin = init(props);
 			}
 			struct plugin_node* node = malloc(sizeof(struct plugin_node));
+			char* iconify = config_get(config, plugin_name, "-iconify", "none");
+			if(strcmp(iconify, "replace") == 0) {
+				node->iconify = ICONIFY_MODE_REPLACE;
+			} else if(strcmp(iconify, "add") == 0) {
+				node->iconify = ICONIFY_MODE_ADD;
+			} else {
+				node->iconify = ICONIFY_MODE_NONE;
+			}
+			if(node->iconify != ICONIFY_MODE_NONE) {
+				node->icon = config_get(config, plugin_name, "-icon", NULL);
+				node->icon_interval = strtol(config_get(config, plugin_name, "-icon_interval", "10"), NULL, 10);
+			}
 			bar_widget = gtk_event_box_new();
 			user_widget = gtk_label_new(NULL);
 			gtk_container_add(GTK_CONTAINER(bar_widget), user_widget);
