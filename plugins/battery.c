@@ -18,12 +18,14 @@
 #include <map.h>
 #include <gio/gio.h>
 
-static GDBusProxy* proxy;
+static GDBusProxy* proxy = NULL;
 static GError* err = NULL;
 
 void* battery_init(struct map* props) {
 	(void) props;
-	proxy = g_dbus_proxy_new_for_bus_sync(G_BUS_TYPE_SYSTEM, G_DBUS_PROXY_FLAGS_NONE, NULL, "org.freedesktop.UPower", "/org/freedesktop/UPower/devices/battery_BAT0", "org.freedesktop.DBus.Properties", NULL, NULL);
+	if(proxy == NULL) {
+		proxy = g_dbus_proxy_new_for_bus_sync(G_BUS_TYPE_SYSTEM, G_DBUS_PROXY_FLAGS_NONE, NULL, "org.freedesktop.UPower", "/org/freedesktop/UPower/devices/battery_BAT0", "org.freedesktop.DBus.Properties", NULL, NULL);
+	}
 	return NULL;
 }
 
