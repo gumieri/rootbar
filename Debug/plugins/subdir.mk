@@ -10,7 +10,6 @@ C_SRCS += \
 ../plugins/clock.c \
 ../plugins/cpu.c \
 ../plugins/external.c \
-../plugins/image.c \
 ../plugins/memory.c \
 ../plugins/notification.c \
 ../plugins/text.c \
@@ -25,7 +24,6 @@ OBJS += \
 ./plugins/clock.o \
 ./plugins/cpu.o \
 ./plugins/external.o \
-./plugins/image.o \
 ./plugins/memory.o \
 ./plugins/notification.o \
 ./plugins/text.o \
@@ -40,7 +38,6 @@ C_DEPS += \
 ./plugins/clock.d \
 ./plugins/cpu.d \
 ./plugins/external.d \
-./plugins/image.d \
 ./plugins/memory.d \
 ./plugins/notification.d \
 ./plugins/text.d \
