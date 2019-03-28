@@ -38,7 +38,7 @@ struct plugin_node {
 	void (*get_info)(void* data, const char* format, char* out, size_t size);
 	void (*click)(void* data);
 	enum iconify_mode iconify;
-	char* icon;
+	char* icon, *negative_icon;
 	uint64_t icon_interval;
 	struct wl_list link;
 };
@@ -114,29 +114,42 @@ static gboolean idle_add(gpointer data) {
 		char output[node->length + 1];
 		node->get_info(node->plugin, node->format, output, node->length + 1);
 		size_t out_s = strlen(output);
-		int64_t num = -1;
+		int64_t num = 0;
 		size_t num_offset = 0;
 		for(size_t count = 0; count < out_s; ++count) {
-			if(isdigit(output[count])) {
+			if(isdigit(output[count]) || (output[count] == '-' && isdigit(output[count + 1]))) {
 				num = strtol(output + count, NULL, 10);
 				num_offset = count;
 				break;
 			}
 		}
-		if(node->iconify == ICONIFY_MODE_NONE || node->icon == NULL || num == -1) {
+		if(node->iconify == ICONIFY_MODE_NONE || node->icon == NULL) {
 			if(node->iconify != ICONIFY_MODE_NONE && node->icon == NULL) {
 				fprintf(stderr, "Iconify enabled but no icon provided");
 			}
 		} else if(node->iconify == ICONIFY_MODE_ADD) {
+			bool neg = num < 0;
+			if(neg) {
+				num *= -1;
+			}
 			uint64_t icon_num = num / node->icon_interval;
-			size_t chr_len = strlen(node->icon);
+			size_t chr_len;
+			if(neg) {
+				chr_len = strlen(node->negative_icon);
+			} else {
+				chr_len = strlen(node->icon);
+			}
 			size_t required = chr_len * icon_num;
 			if(required >= node->length) {
 				icon_num = node->length / chr_len;
 			}
 			output[num_offset] = 0;
 			for(size_t count = 0; count < icon_num; ++count) {
-				strcat(output, node->icon);
+				if(neg) {
+					strcat(output, node->negative_icon);
+				} else {
+					strcat(output, node->icon);
+				}
 			}
 		}
 		if(strlen(output) == node->length) {
@@ -373,6 +386,7 @@ void bar_init(struct map* config, const char* bar_name, char* output_name, const
 			}
 			if(node->iconify != ICONIFY_MODE_NONE) {
 				node->icon = config_get(config, plugin_name, "-icon", NULL);
+				node->negative_icon = config_get(config, plugin_name, "-negative_icon", NULL);
 				node->icon_interval = strtol(config_get(config, plugin_name, "-icon_interval", "10"), NULL, 10);
 			}
 			bar_widget = gtk_event_box_new();

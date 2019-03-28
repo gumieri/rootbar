@@ -20,12 +20,13 @@
 #include <pulse/pulseaudio.h>
 #include <pulse/glib-mainloop.h>
 
-static const char* arg_names[] = {"sink"};
+static const char* arg_names[] = {"sink", "iconify"};
 
 struct volume {
 	uint64_t sink;
 	float volume;
 	bool mute;
+	bool iconify;
 };
 
 void info(pa_context* ctx, const pa_sink_info* info, int32_t eol, void* data) {
@@ -60,6 +61,8 @@ void* volume_init(struct map* props) {
 		sink = "0";
 	}
 	this->sink = strtol(sink, NULL, 10);
+	char* iconify = map_get(props, "iconify");
+	this->iconify = iconify != NULL && strcmp(iconify, "none") != 0;
 	pa_glib_mainloop* loop = pa_glib_mainloop_new(NULL);
 	pa_mainloop_api* api = pa_glib_mainloop_get_api(loop);
 	pa_context* ctx = pa_context_new(api, NULL);
@@ -78,5 +81,11 @@ size_t volume_get_arg_count() {
 
 void volume_get_info(void* data, const char* format, char* out, size_t size) {
 	struct volume* this = data;
-	snprintf(out, size, format, this->volume, this->mute ? "true" : "false");
+	float volume;
+	if(this->iconify && this->mute) {
+		volume = -this->volume;
+	} else {
+		volume = this->volume;
+	}
+	snprintf(out, size, format, volume, this->mute ? "true" : "false");
 }
