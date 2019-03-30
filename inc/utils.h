@@ -30,4 +30,6 @@ void utils_sleep_millis(time_t millis);
 
 char* utils_concat(const char* str1, const char* str2);
 
+size_t utils_split(char* str, const char chr);
+
 #endif

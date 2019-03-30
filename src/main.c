@@ -314,13 +314,7 @@ int main(int argc, char** argv) {
 			fprintf(stderr, "all specified but no bars in config\n");
 			exit(1);
 		}
-		char* comma = strchr(bars, ',');
-		size_t comma_count = 1;
-		while(comma != NULL) {
-			++comma_count;
-			*comma = 0;
-			comma = strchr(comma + 1, ',');
-		}
+		size_t comma_count = utils_split(bars, ',');
 		char* bar = bars;
 		for(size_t count = 0; count < comma_count; ++count) {
 			bar_init(config, bar, config_get(config, bar, "-output", NULL), CONFIG_LOCATION);

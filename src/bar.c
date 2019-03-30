@@ -281,17 +281,11 @@ void bar_init(struct map* config, const char* bar_name, char* output_name, const
 	gtk_container_add(root, center);
 	gtk_container_add(root, right);
 
-	size_t comma_count = 1;
 	char* plugin_names = config_get(config, bar_name, "-plugins", NULL);
 	if(plugin_names == NULL) {
 		return;
 	}
-	char* comma = strchr(plugin_names, ',');
-	while(comma != NULL) {
-		++comma_count;
-		*comma = 0;
-		comma = strchr(comma + 1, ',');
-	}
+	size_t comma_count = utils_split(plugin_names, ',');
 	char* plugin_name = plugin_names;
 	for(size_t count = 0; count < comma_count; ++count) {
 		char* dso_name = config_get(config, plugin_name, "-dso", NULL);

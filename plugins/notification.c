@@ -16,6 +16,7 @@
  */
 
 #include <map.h>
+#include <utils.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -376,13 +377,7 @@ void notification_get_info(void* data, const char* format, char* out, size_t siz
 	if(this->display != NULL) {
 		char* t_display = strdup(this->display);
 		char* tmp_display = t_display;
-		char* comma = strchr(tmp_display, ',');
-		size_t comma_count = 1;
-		while(comma != NULL) {
-			++comma_count;
-			*comma = 0;
-			comma = strchr(comma + 1, ',');
-		}
+		size_t comma_count = utils_split(tmp_display, ',');
 		if(comma_count > 3) {
 			fprintf(stderr, "That's too many display options\n");
 			free(t_display);
