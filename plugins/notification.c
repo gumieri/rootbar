@@ -24,8 +24,12 @@
 
 static const char* arg_names[] = {"exec", "display"};
 
+struct notification {
+	const char* display;
+};
+
 bool running = false;
-const char* exec, *display;
+const char* exec;
 char* _summary, *_body, *_app_name;
 uint32_t id;
 
@@ -347,13 +351,14 @@ static void name_lost(GDBusConnection* connection, const gchar* name, gpointer d
 }
 
 void* notification_init(struct map* props) {
+	struct notification* this = malloc(sizeof(struct notification));
+	this->display = map_get(props, "display");
 	if(!running) {
 		running = true;
 		exec = map_get(props, "exec");
-		display = map_get(props, "display");
 		g_bus_own_name(G_BUS_TYPE_SESSION, "org.freedesktop.Notifications", G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE, NULL, name_acquired, name_lost, NULL, NULL);
 	}
-	return NULL;
+	return this;
 }
 
 const char** notification_get_arg_names() {
@@ -365,11 +370,11 @@ size_t notification_get_arg_count() {
 }
 
 void notification_get_info(void* data, const char* format, char* out, size_t size) {
-	(void) data;
+	struct notification* this = data;
 	char* info[3];
 	memset(info, 0, 3 * sizeof(char*));
-	if(display != NULL) {
-		char* t_display = strdup(display);
+	if(this->display != NULL) {
+		char* t_display = strdup(this->display);
 		char* tmp_display = t_display;
 		char* comma = strchr(tmp_display, ',');
 		size_t comma_count = 1;
