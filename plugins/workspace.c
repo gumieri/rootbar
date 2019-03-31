@@ -21,7 +21,7 @@
 #include <json-c/json_object.h>
 #include <json-c/json_tokener.h>
 
-static const char* arg_names[] = {"show_all", "padding"};
+static const char* arg_names[] = {"show_all", "padding", "name_only"};
 
 struct tmp {
 	struct workspace* this;
@@ -38,7 +38,7 @@ struct click_info {
 struct workspace {
 	const char* output_name, *plugin_name;
 	GtkBox* box;
-	bool show_all;
+	bool show_all, name_only;
 	struct sway_ipc* ipc, *click_ipc;
 	struct map* labels;
 	const char* inactive, *urgent, *focused, *visible;
@@ -108,6 +108,12 @@ static void ask_workspaces(void* data, const char* ignored) {
 				gtk_container_add(GTK_CONTAINER(box), label);
 				gtk_widget_add_events(GTK_WIDGET(box), GDK_BUTTON_PRESS);
 				struct click_info* info = malloc(sizeof(struct click_info));
+				if(this->name_only) {
+					char* colon = strchr(name, ':');
+					if(colon != NULL) {
+						name = colon + 1;
+					}
+				}
 				info->name = strdup(name);
 				info->this = this;
 				g_signal_connect(GTK_WIDGET(box), "button-press-event", G_CALLBACK(click), info);
@@ -143,8 +149,10 @@ void workspace_init(struct map* props, GtkBox* box) {
 	struct workspace* this = calloc(1, sizeof(struct workspace));
 	this->output_name = map_get(props, "_output");
 	this->box = box;
-	char* show_all_str = map_get(props, "show_all");
-	this->show_all = show_all_str != NULL && strcmp(show_all_str, "true") == 0;
+	char* show_all = map_get(props, "show_all");
+	this->show_all = show_all != NULL && strcmp(show_all, "true") == 0;
+	char* name_only = map_get(props, "name_only");
+	this->name_only = name_only != NULL && strcmp(name_only, "true") == 0;
 	this->plugin_name = map_get(props, "_plugin");
 	this->labels = map_init_void();
 	this->inactive = concat(this->plugin_name, "-inactive");
