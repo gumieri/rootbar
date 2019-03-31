@@ -108,12 +108,6 @@ static void ask_workspaces(void* data, const char* ignored) {
 				gtk_container_add(GTK_CONTAINER(box), label);
 				gtk_widget_add_events(GTK_WIDGET(box), GDK_BUTTON_PRESS);
 				struct click_info* info = malloc(sizeof(struct click_info));
-				if(this->name_only) {
-					char* colon = strchr(name, ':');
-					if(colon != NULL) {
-						name = colon + 1;
-					}
-				}
 				info->name = strdup(name);
 				info->this = this;
 				g_signal_connect(GTK_WIDGET(box), "button-press-event", G_CALLBACK(click), info);
@@ -122,6 +116,12 @@ static void ask_workspaces(void* data, const char* ignored) {
 			struct tmp* tmp = malloc(sizeof(struct tmp));
 			tmp->this = this;
 			tmp->box = box;
+			if(this->name_only) {
+				char* colon = strchr(name, ':');
+				if(colon != NULL) {
+					name = colon + 1;
+				}
+			}
 			tmp->name = strdup(name);
 			if(urgent) {
 				tmp->status = this->urgent;
