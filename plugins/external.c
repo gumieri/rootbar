@@ -42,7 +42,7 @@ size_t external_get_arg_count() {
 void external_get_info(void* data, const char* format, char* out, size_t size) {
 	struct external* this = data;
 	if(this->exec == NULL) {
-		fprintf(stderr, "That's not a valid executable");
+		fprintf(stderr, "That's not a valid executable\n");
 		return;
 	}
 	if(access(this->exec, X_OK) == 0) {
