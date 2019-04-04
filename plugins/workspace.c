@@ -149,7 +149,7 @@ static char* concat(const char* plugin_name, const char* status) {
 
 void workspace_init(struct map* props, GtkBox* box) {
 	struct workspace* this = calloc(1, sizeof(struct workspace));
-	this->output_name = map_get(props, "_output");
+	this->output_name = strdup(map_get(props, "_output"));
 	this->box = box;
 	char* show_all = map_get(props, "show_all");
 	this->show_all = show_all != NULL && strcmp(show_all, "true") == 0;
@@ -157,7 +157,7 @@ void workspace_init(struct map* props, GtkBox* box) {
 	this->name_only = name_only != NULL && strcmp(name_only, "true") == 0;
 	char* disable_clicks = map_get(props, "disable_clicks");
 	this->disable_clicks = disable_clicks != NULL && strcmp(disable_clicks, "true") == 0;
-	this->plugin_name = map_get(props, "_plugin");
+	this->plugin_name = strdup(map_get(props, "_plugin"));
 	this->labels = map_init_void();
 	this->inactive = concat(this->plugin_name, "-inactive");
 	this->urgent = concat(this->plugin_name, "-urgent");

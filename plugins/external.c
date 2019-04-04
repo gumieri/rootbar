@@ -27,7 +27,7 @@ struct external {
 
 void* external_init(struct map* props) {
 	struct external* this = malloc(sizeof(struct external));
-	this->exec = map_get(props, "exec");
+	this->exec = strdup(map_get(props, "exec"));
 	return this;
 }
 

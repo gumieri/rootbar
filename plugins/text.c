@@ -26,7 +26,7 @@ struct text {
 
 void* text_init(struct map* props) {
 	struct text* this = malloc(sizeof(struct text));
-	this->text = map_get(props, "text");
+	this->text = strdup(map_get(props, "text"));
 	return this;
 }
 

@@ -93,6 +93,9 @@ void* cpu_init(struct map* props) {
 	struct cpu* this = calloc(1, sizeof(struct cpu));
 	char* interval = map_get(props, "interval");
 	this->core = map_get(props, "core");
+	if(this->core != NULL) {
+		this->core = strdup(this->core);
+	}
 	if(interval == NULL) {
 		interval = "1000";
 	}

@@ -26,8 +26,8 @@ struct action {
 
 void* action_init(struct map* props) {
 	struct action* this = malloc(sizeof(struct action));
-	this->text = map_get(props, "text");
-	this->exec = map_get(props, "exec");
+	this->text = strdup(map_get(props, "text"));
+	this->exec = strdup(map_get(props, "exec"));
 	return this;
 }
 

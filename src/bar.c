@@ -395,6 +395,7 @@ void bar_init(struct map* config, const char* bar_name, char* output_name, const
 			node->click = click;
 			wl_list_insert(&this->plugins, &node->link);
 		}
+		map_free(props);
 		gtk_widget_set_name(user_widget, plugin_name);
 		char* position = config_get(config, plugin_name, "-position", "right");
 		if(strcmp(position, "left") == 0) {

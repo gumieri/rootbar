@@ -353,10 +353,13 @@ static void name_lost(GDBusConnection* connection, const gchar* name, gpointer d
 
 void* notification_init(struct map* props) {
 	struct notification* this = malloc(sizeof(struct notification));
-	this->display = map_get(props, "display");
+	this->display = strdup(map_get(props, "display"));
 	if(!running) {
 		running = true;
 		exec = map_get(props, "exec");
+		if(exec != NULL) {
+			exec = strdup(exec);
+		}
 		g_bus_own_name(G_BUS_TYPE_SESSION, "org.freedesktop.Notifications", G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE, NULL, name_acquired, name_lost, NULL, NULL);
 	}
 	return this;
