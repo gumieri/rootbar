@@ -343,6 +343,15 @@ static void name_acquired(GDBusConnection* connection, const gchar* name, gpoint
 	};
 
 	g_dbus_connection_register_object(connection, "/org/freedesktop/Notifications", interface, &vtable, this, NULL, NULL);
+	free(signals);
+	free(action_invoked);
+	free(action_invoked_args);
+	free(action_invoked_action_key);
+	free(action_invoked_id);
+	free(notification_closed);
+	free(notification_closed_args);
+	free(notification_closed_reason);
+	free(notification_closed_id);
 }
 
 static void name_lost(GDBusConnection* connection, const gchar* name, gpointer data) {
