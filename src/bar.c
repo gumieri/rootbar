@@ -161,6 +161,7 @@ static gboolean idle_add(gpointer data) {
 		if(lf != NULL) {
 			*lf = 0;
 		}
+		gtk_widget_set_visible(node->widget, strlen(output) > 0);
 		gtk_label_set_text(GTK_LABEL(node->widget), output);
 	}
 	return FALSE;
